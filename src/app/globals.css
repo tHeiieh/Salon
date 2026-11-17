@@ -1,26 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 36 25% 97%;
+  --foreground: 24 10% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 24 10% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 24 10% 15%;
+  --primary: 353 35% 55%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 36 30% 93%;
+  --secondary-foreground: 24 10% 20%;
+  --accent: 38 55% 60%;
+  --accent-foreground: 0 0% 100%;
+  --muted: 36 20% 92%;
+  --muted-foreground: 24 8% 50%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 36 15% 88%;
+  --input: 36 15% 88%;
+  --ring: 353 35% 55%;
+  --radius: 0.75rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================
+   LANDING PAGE HERO
+   ============================ */
+.hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15) 0%,
+    rgba(0,0,0,0.0) 40%,
+    rgba(0,0,0,0.65) 100%
+  );
+}
+
+/* ============================
+   SERVICE CARDS
+   ============================ */
+.service-card {
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  cursor: pointer;
+}
+.service-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,0.12), 0 4px 12px -4px rgba(0,0,0,0.06);
+}
+.service-card:active {
+  transform: translateY(-1px);
+}
+
+/* ============================
+   CATEGORY TABS
+   ============================ */
+.category-tab {
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.category-tab.active {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+}
+
+/* ============================
+   BOOKING STEP PROGRESS
+   ============================ */
+.step-line {
+  transition: background-color 0.4s ease;
+}
+.step-circle {
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ============================
+   UTILITY
+   ============================ */
+.gradient-brand {
+  background: linear-gradient(135deg, hsl(353 35% 55%) 0%, hsl(38 55% 60%) 100%);
+}
+
+.glass {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.glass-dark {
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.card-soft {
+  background: white;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 0 0 1px hsl(36 15% 88% / 0.6);
+  padding: 1.5rem;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+
+/* ============================
+   ANIMATIONS
+   ============================ */
+.page-enter {
+  animation: fadeSlideUp 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Shimmer skeleton */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(36 20% 92%) 25%,
+    hsl(36 20% 95%) 50%,
+    hsl(36 20% 92%) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* Pulse dot */
+.pulse-dot {
+  animation: pulse-dot 2s cubic-bezier(0.4,0,0.6,1) infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Stat card shine */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -60%;
+  width: 100%;
+  height: 200%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+  transform: rotate(5deg);
+}
+
+/* Input focus ring */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(353 35% 55% / 0.18);
+}
+
+/* Badge */
+.badge-new {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+
+/* Floating action button */
+.fab {
+  box-shadow: 0 8px 24px -4px rgba(194, 132, 122, 0.5);
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px -4px rgba(194, 132, 122, 0.6);
+}
+.fab:active {
+  transform: translateY(0);
 }
