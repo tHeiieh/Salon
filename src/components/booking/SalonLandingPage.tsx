@@ -455,9 +455,11 @@ function EmployeeCard({ employee, primaryColor }: { employee: Employee; primaryC
           <div style={{
             width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
             backgroundImage: `linear-gradient(145deg, ${primaryColor}22, ${primaryColor}44)`,
-            fontSize: 24,
           }}>
-            👩
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="4" fill={primaryColor} fillOpacity="0.4" stroke={primaryColor} strokeWidth="1.5"/>
+              <path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6" stroke={primaryColor} strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
           </div>
         )}
       </div>

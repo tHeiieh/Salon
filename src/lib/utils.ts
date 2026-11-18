@@ -80,7 +80,8 @@ export function generateTimeSlots(startTime: string, endTime: string, intervalMi
 }
 
 export function getDayOfWeek(dateStr: string): number {
-  return new Date(dateStr).getDay()
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day).getDay()
 }
 
 export const SAUDI_CITIES = [

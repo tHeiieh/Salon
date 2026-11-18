@@ -130,7 +130,7 @@ export default async function AppointmentsPage({
                     </p>
                     <p style={{ fontSize: 11, color: '#aaa', margin: '2px 0 0 0' }}>
                       {appt.address?.district_ar ? `📍 ${appt.address.district_ar}` : ''}
-                      {appt.employee?.name_ar ? ` • 👩 ${appt.employee.name_ar}` : ''}
+                      {appt.employee?.name_ar ? ` • ${appt.employee.name_ar}` : ''}
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>

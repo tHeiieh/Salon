@@ -27,7 +27,12 @@ export default async function EmployeesPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
         {!employees?.length ? (
           <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '64px 0', color: '#aaa' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>👩</div>
+            <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" fill="#C2847A" fillOpacity="0.3" stroke="#C2847A" strokeWidth="1.5"/>
+                <path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6" stroke="#C2847A" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
             <p style={{ margin: 0, fontSize: 14 }}>لا توجد موظفات بعد</p>
           </div>
         ) : (
@@ -56,7 +61,10 @@ export default async function EmployeesPage() {
                   {emp.photo_url ? (
                     <Image src={emp.photo_url} alt={emp.name_ar} fill style={{ objectFit: 'cover' }} />
                   ) : (
-                    <span style={{ fontSize: 24 }}>👩</span>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="8" r="4" fill="#C2847A" fillOpacity="0.3" stroke="#C2847A" strokeWidth="1.5"/>
+                      <path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6" stroke="#C2847A" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
                   )}
                 </div>
                 <div style={{ flex: 1, overflow: 'hidden' }}>

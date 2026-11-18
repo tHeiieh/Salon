@@ -92,9 +92,16 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
             <div style={{
               width: 48, height: 48, borderRadius: '50%',
               background: 'linear-gradient(135deg, rgba(194,132,122,0.2) 0%, rgba(212,169,106,0.2) 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              🌸
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 20c0-2.21-2.24-4-5-4s-5 1.79-5 4" stroke="#C2847A" strokeWidth="1.5" strokeLinecap="round"/>
+                <circle cx="12" cy="8" r="4" stroke="#C2847A" strokeWidth="1.5"/>
+                <path d="M19 20c0-1.5-1.3-2.8-3-3.4" stroke="#C2847A" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M5 20c0-1.5 1.3-2.8 3-3.4" stroke="#C2847A" strokeWidth="1.5" strokeLinecap="round"/>
+                <circle cx="19" cy="8.5" r="2.5" stroke="#C2847A" strokeWidth="1.5"/>
+                <circle cx="5" cy="8.5" r="2.5" stroke="#C2847A" strokeWidth="1.5"/>
+              </svg>
             </div>
             <span style={{ fontSize: 11, fontWeight: 500, color: '#1a1a1a' }}>أي متخصصة</span>
           </button>
@@ -116,7 +123,12 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
                 {emp.photo_url ? (
                   <Image src={emp.photo_url} alt={emp.name_ar} width={48} height={48} style={{ objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>👩</div>
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fdf4f3' }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="8" r="4" fill="#C2847A" fillOpacity="0.3" stroke="#C2847A" strokeWidth="1.5"/>
+                      <path d="M4 20c0-3.31 3.58-6 8-6s8 2.69 8 6" stroke="#C2847A" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </div>
                 )}
               </div>
               <span style={{ fontSize: 11, fontWeight: 500, color: '#1a1a1a', textAlign: 'center' }}>{emp.name_ar}</span>
