@@ -10,10 +10,10 @@ const CreateAppointmentSchema = z.object({
   customerPhone: z.string().min(9).max(20),
   services: z.array(z.string().uuid()).min(1),
   address: z.object({
-    city_ar: z.string(),
-    city_en: z.string(),
-    district_ar: z.string(),
-    district_en: z.string(),
+    city_ar: z.string().min(1),
+    city_en: z.string().optional().default(''),
+    district_ar: z.string().min(1),
+    district_en: z.string().optional().default(''),
     street: z.string().optional(),
     building: z.string().optional(),
     instructions: z.string().optional(),
@@ -258,7 +258,8 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid input', details: error.issues }, { status: 400 })
+      const fields = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')
+      return NextResponse.json({ error: `Invalid input: ${fields}` }, { status: 400 })
     }
     console.error('Appointment creation error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
