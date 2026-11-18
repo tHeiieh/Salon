@@ -26,8 +26,9 @@ const CreateAppointmentSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  let body: unknown
   try {
-    const body = await req.json()
+    body = await req.json()
     const data = CreateAppointmentSchema.parse(body)
 
     const supabase = await createServiceRoleClient()
@@ -259,7 +260,13 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const fields = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')
-      return NextResponse.json({ error: `Invalid input: ${fields}` }, { status: 400 })
+      const dbg: Record<string, unknown> = {}
+      for (const issue of error.issues) {
+        const key = issue.path.join('.')
+        const val = issue.path.reduce((o: unknown, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), body)
+        dbg[key] = String(val).slice(0, 60)
+      }
+      return NextResponse.json({ error: `Invalid input: ${fields}`, _debug: dbg }, { status: 400 })
     }
     console.error('Appointment creation error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
