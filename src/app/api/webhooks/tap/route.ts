@@ -6,16 +6,18 @@ export async function POST(req: NextRequest) {
   const body = await req.text()
   const signature = req.headers.get('hashstring') || ''
 
-  // Verify webhook signature
+  // Verify webhook signature — reject if secret is not configured to prevent payment forgery
   const webhookSecret = process.env.TAP_WEBHOOK_SECRET
-  if (webhookSecret) {
-    const expected = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(body)
-      .digest('hex')
-    if (expected !== signature) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
-    }
+  if (!webhookSecret) {
+    console.error('TAP_WEBHOOK_SECRET not configured — rejecting webhook')
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+  }
+  const expected = crypto
+    .createHmac('sha256', webhookSecret)
+    .update(body)
+    .digest('hex')
+  if (expected !== signature) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
   let event: Record<string, unknown>
