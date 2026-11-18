@@ -1,6 +1,15 @@
-import { createClient } from '@/lib/supabase/server'
-import { calculateEndTime, getDayOfWeek } from '@/lib/utils'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { getDayOfWeek } from '@/lib/utils'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Employee, EmployeeSchedule, TimeSlot, Service } from '@/types'
+
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
 export interface AvailabilityQuery {
   tenantId: string
@@ -22,7 +31,7 @@ function totalDuration(services: Service[]): number {
 
 // Check if a time range overlaps with existing appointments
 async function getEmployeeBookedSlots(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: SupabaseClient,
   employeeId: string,
   date: string,
   travelBuffer: number
@@ -75,7 +84,7 @@ function slotConflicts(
 }
 
 export async function getAvailableSlots(query: AvailabilityQuery): Promise<AvailabilityResult> {
-  const supabase = await createClient()
+  const supabase = getAdminClient()
   const duration = totalDuration(query.services)
   const dayOfWeek = getDayOfWeek(query.date)
 
@@ -173,7 +182,7 @@ export async function checkSlotAvailability(
   startTime: string,
   durationMinutes: number
 ): Promise<boolean> {
-  const supabase = await createClient()
+  const supabase = getAdminClient()
   const endTime = addMinutesToTime(startTime, durationMinutes)
 
   const { data: emp } = await supabase

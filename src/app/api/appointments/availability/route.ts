@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAvailableSlots } from '@/lib/scheduling'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
+
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
@@ -16,7 +24,7 @@ export async function GET(req: NextRequest) {
   const serviceIds = serviceIdsStr.split(',').filter(Boolean)
 
   try {
-    const supabase = await createClient()
+    const supabase = getAdminClient()
     const { data: services } = await supabase
       .from('services')
       .select('*')
