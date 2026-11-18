@@ -31,6 +31,7 @@ export function EmployeeAppointmentCard({ appointment: initial, statusConfig, hi
 
   const cfg = statusConfig[appointment.status] || { label: appointment.status, bg: '#f5f5f5', color: '#666' }
   const nextAction = NEXT_STATUS[appointment.status]
+  const customer = Array.isArray(appointment.customers) ? appointment.customers[0] : appointment.customers
 
   async function updateStatus() {
     if (!nextAction) return
@@ -67,10 +68,10 @@ export function EmployeeAppointmentCard({ appointment: initial, statusConfig, hi
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
         <div>
           <p style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-            {appointment.customers?.name || 'عميلة'}
+            {customer?.name || 'عميلة'}
           </p>
           <p style={{ fontSize: 11, color: '#9ca3af', margin: '2px 0 0' }} dir="ltr">
-            {appointment.customers?.phone}
+            {customer?.phone}
           </p>
         </div>
         <span style={{

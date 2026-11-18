@@ -162,6 +162,6 @@ export type AppointmentRow = {
   scheduled_end: string
   payment_method: string
   final_price: number
-  customers: { name: string; phone: string } | null
+  customers: { name: string; phone: string }[] | { name: string; phone: string } | null
   appointment_services: { service_name_ar: string; price: number }[]
 }
