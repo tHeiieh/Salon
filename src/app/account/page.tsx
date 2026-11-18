@@ -16,7 +16,7 @@ interface Appointment {
   final_price: number
   tenant_id: string
   appointment_services: { service_name_ar: string }[]
-  customer_addresses: { district_ar: string; city_ar: string } | null
+  customer_addresses: { district_ar: string; city_ar: string }[]
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
@@ -90,7 +90,7 @@ export default function AccountPage() {
       `)
       .order('scheduled_date', { ascending: false })
       .limit(20)
-    setAppointments((data as Appointment[]) || [])
+    setAppointments((data as unknown as Appointment[]) || [])
     setLoadingAppts(false)
   }
 
@@ -242,10 +242,10 @@ export default function AccountPage() {
                           <Calendar size={13} />
                           <span>{formatDate(appt.scheduled_date, 'PPP')} - {appt.scheduled_start?.substring(0, 5)}</span>
                         </div>
-                        {appt.customer_addresses && (
+                        {appt.customer_addresses?.[0] && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6b7280' }}>
                             <MapPin size={13} />
-                            <span>{appt.customer_addresses.district_ar}، {appt.customer_addresses.city_ar}</span>
+                            <span>{appt.customer_addresses[0].district_ar}، {appt.customer_addresses[0].city_ar}</span>
                           </div>
                         )}
                       </div>

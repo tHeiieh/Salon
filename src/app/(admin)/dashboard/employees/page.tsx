@@ -40,7 +40,7 @@ export default async function EmployeesPage() {
             specializations?: string[]
             travel_buffer_minutes: number
             schedules: Array<{ day_of_week: number; is_working: boolean; start_time: string; end_time: string }>
-            services: Array<{ service: { name_ar: string } | null }>
+            services: Array<{ service: { name_ar: string }[] }>
           }) => (
             <div
               key={emp.id}
@@ -115,7 +115,7 @@ export default async function EmployeesPage() {
                             border: '1px solid #e5e5e5', color: '#666', backgroundColor: '#fafafa',
                           }}
                         >
-                          {es.service?.name_ar}
+                          {es.service?.[0]?.name_ar}
                         </span>
                       ))}
                       {emp.services.length > 3 && (
