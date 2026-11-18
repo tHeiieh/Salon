@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, Plus, ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { MapPin, ChevronDown } from 'lucide-react'
 import { SAUDI_CITIES } from '@/lib/utils'
-import type { TenantProfile, CustomerAddress, BookingState, CoverageArea } from '@/types'
+import type { TenantProfile, BookingState, CoverageArea } from '@/types'
 
 interface Props {
   tenant: TenantProfile
@@ -15,8 +13,18 @@ interface Props {
   primaryColor: string
 }
 
+const inputStyle: React.CSSProperties = {
+  width: '100%', height: 44, borderRadius: 12, border: '1px solid #e5e7eb',
+  padding: '0 16px', fontSize: 14, backgroundColor: '#fff',
+  outline: 'none', boxSizing: 'border-box', color: '#1a1a1a',
+  appearance: 'none' as const,
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 6,
+}
+
 export function Step2Address({ tenant, state, updateState, onNext, primaryColor }: Props) {
-  const [mode, setMode] = useState<'select' | 'new'>('new')
   const [coverageAreas, setCoverageAreas] = useState<CoverageArea[]>([])
   const [selectedCity, setSelectedCity] = useState('')
   const [selectedDistrict, setSelectedDistrict] = useState('')
@@ -27,7 +35,6 @@ export function Step2Address({ tenant, state, updateState, onNext, primaryColor 
   const [coverageError, setCoverageError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Fetch coverage areas for this tenant
     fetch(`/api/tenants/${state.tenantId}/coverage`)
       .then(r => r.json())
       .then(d => setCoverageAreas(d.areas || []))
@@ -35,14 +42,12 @@ export function Step2Address({ tenant, state, updateState, onNext, primaryColor 
   }, [state.tenantId])
 
   const availableCities = [...new Set(coverageAreas.map(a => a.city_name_ar))]
-
   const availableDistricts = coverageAreas
     .filter(a => a.city_name_ar === selectedCity)
     .map(a => a.district_name_ar)
 
   async function handleContinue() {
     if (!selectedCity || !selectedDistrict) return
-
     setChecking(true)
     setCoverageError(null)
 
@@ -64,7 +69,7 @@ export function Step2Address({ tenant, state, updateState, onNext, primaryColor 
         city_ar: selectedCity,
         city_en: cityEn,
         district_ar: selectedDistrict,
-        district_en: area.district_name_en,
+        district_en: area.district_name_en || '',
         street,
         building,
         instructions,
@@ -75,50 +80,52 @@ export function Step2Address({ tenant, state, updateState, onNext, primaryColor 
     onNext()
   }
 
+  const selectedArea = coverageAreas.find(a => a.city_name_ar === selectedCity && a.district_name_ar === selectedDistrict)
   const canContinue = selectedCity && selectedDistrict
 
   return (
-    <div className="space-y-6 page-enter">
+    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h2 className="text-2xl font-bold text-foreground">عنوان الخدمة</h2>
-        <p className="text-muted-foreground text-sm mt-1">أين تريدين أن تصلك الخدمة؟</p>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>عنوان الخدمة</h2>
+        <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>أين تريدين أن تصلك الخدمة؟</p>
       </div>
 
-      <div className="space-y-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
         {/* City */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">المدينة</label>
-          <div className="relative">
+        <div>
+          <label style={labelStyle}>المدينة</label>
+          <div style={{ position: 'relative' }}>
             <select
               value={selectedCity}
               onChange={e => { setSelectedCity(e.target.value); setSelectedDistrict('') }}
-              className="w-full h-11 rounded-xl border border-input bg-background px-4 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none"
+              style={inputStyle}
             >
               <option value="">اختاري المدينة</option>
               {availableCities.map(city => (
                 <option key={city} value={city}>{city}</option>
               ))}
             </select>
-            <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <ChevronDown size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none' }} />
           </div>
         </div>
 
         {/* District */}
         {selectedCity && (
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">الحي</label>
-            <div className="relative">
+          <div>
+            <label style={labelStyle}>الحي</label>
+            <div style={{ position: 'relative' }}>
               <select
                 value={selectedDistrict}
                 onChange={e => setSelectedDistrict(e.target.value)}
-                className="w-full h-11 rounded-xl border border-input bg-background px-4 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none"
+                style={inputStyle}
               >
                 <option value="">اختاري الحي</option>
                 {availableDistricts.map(d => (
                   <option key={d} value={d}>{d}</option>
                 ))}
               </select>
-              <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <ChevronDown size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none' }} />
             </div>
           </div>
         )}
@@ -126,67 +133,80 @@ export function Step2Address({ tenant, state, updateState, onNext, primaryColor 
         {/* Street and Building */}
         {selectedDistrict && (
           <>
-            <Input
-              label="اسم الشارع (اختياري)"
-              value={street}
-              onChange={e => setStreet(e.target.value)}
-              placeholder="مثال: شارع الملك فهد"
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="رقم المبنى"
+            <div>
+              <label style={labelStyle}>اسم الشارع (اختياري)</label>
+              <input
+                value={street}
+                onChange={e => setStreet(e.target.value)}
+                placeholder="مثال: شارع الملك فهد"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>رقم المبنى</label>
+              <input
                 value={building}
                 onChange={e => setBuilding(e.target.value)}
                 placeholder="٢٣"
+                style={{ ...inputStyle, maxWidth: 160 }}
               />
             </div>
-            <Input
-              label="تعليمات إضافية (اختياري)"
-              value={instructions}
-              onChange={e => setInstructions(e.target.value)}
-              placeholder="مثال: بالقرب من المسجد، الطابق الثاني..."
-            />
+            <div>
+              <label style={labelStyle}>تعليمات إضافية (اختياري)</label>
+              <input
+                value={instructions}
+                onChange={e => setInstructions(e.target.value)}
+                placeholder="مثال: بالقرب من المسجد، الطابق الثاني..."
+                style={inputStyle}
+              />
+            </div>
           </>
         )}
 
         {/* Coverage Error */}
         {coverageError && (
-          <div className="p-4 bg-red-50 rounded-xl border border-red-200 text-red-700 text-sm">
+          <div style={{ padding: 16, backgroundColor: '#fef2f2', borderRadius: 12, border: '1px solid #fecaca', color: '#b91c1c', fontSize: 13 }}>
             {coverageError}
           </div>
         )}
 
-        {/* Coverage area fee preview */}
-        {selectedDistrict && coverageAreas.find(a => a.city_name_ar === selectedCity && a.district_name_ar === selectedDistrict) && (() => {
-          const area = coverageAreas.find(a => a.city_name_ar === selectedCity && a.district_name_ar === selectedDistrict)!
-          return area.travel_fee > 0 ? (
-            <div
-              className="flex items-center gap-3 p-3 rounded-xl border"
-              style={{ backgroundColor: `${primaryColor}08`, borderColor: `${primaryColor}30` }}
-            >
-              <MapPin className="w-5 h-5 flex-shrink-0" style={{ color: primaryColor }} />
-              <p className="text-sm text-foreground">
-                رسوم زيارة منزلية: <strong>{area.travel_fee} ريال</strong>
+        {/* Travel fee preview */}
+        {selectedArea && (
+          selectedArea.travel_fee > 0 ? (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: 12,
+              borderRadius: 12, border: `1px solid ${primaryColor}30`,
+              backgroundColor: `${primaryColor}08`,
+            }}>
+              <MapPin size={18} style={{ flexShrink: 0, color: primaryColor }} />
+              <p style={{ fontSize: 13, color: '#1a1a1a', margin: 0 }}>
+                رسوم زيارة منزلية: <strong>{selectedArea.travel_fee} ريال</strong>
               </p>
             </div>
           ) : (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-200">
-              <MapPin className="w-5 h-5 flex-shrink-0 text-green-600" />
-              <p className="text-sm text-green-700">زيارة مجانية لهذه المنطقة ✓</p>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: 12,
+              borderRadius: 12, border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4',
+            }}>
+              <MapPin size={18} style={{ flexShrink: 0, color: '#16a34a' }} />
+              <p style={{ fontSize: 13, color: '#15803d', margin: 0 }}>زيارة مجانية لهذه المنطقة ✓</p>
             </div>
           )
-        })()}
+        )}
       </div>
 
-      <Button
-        className="w-full rounded-xl h-12 text-base"
-        style={{ backgroundColor: primaryColor }}
-        disabled={!canContinue || checking}
-        loading={checking}
+      <button
         onClick={handleContinue}
+        disabled={!canContinue || checking}
+        style={{
+          width: '100%', height: 48, borderRadius: 12, border: 'none',
+          backgroundColor: !canContinue || checking ? '#d1d5db' : primaryColor,
+          color: '#fff', fontSize: 15, fontWeight: 600,
+          cursor: !canContinue || checking ? 'not-allowed' : 'pointer',
+        }}
       >
-        تأكيد العنوان والمتابعة
-      </Button>
+        {checking ? 'جاري التحقق...' : 'تأكيد العنوان والمتابعة'}
+      </button>
     </div>
   )
 }

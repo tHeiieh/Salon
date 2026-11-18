@@ -1,9 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
-import { formatCurrency, formatDate, formatTime, APPOINTMENT_STATUS_AR, APPOINTMENT_STATUS_COLORS } from '@/lib/utils'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, MapPin, User } from 'lucide-react'
+import { Calendar, MapPin, Phone } from 'lucide-react'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
 import { AppointmentStatusUpdater } from '@/components/portal/AppointmentStatusUpdater'
@@ -13,7 +11,13 @@ export default async function EmployeePortalPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+
+  const { data: profile } = await admin
     .from('user_profiles')
     .select('*, employees!inner(*)')
     .eq('id', user.id)
@@ -25,8 +29,9 @@ export default async function EmployeePortalPage() {
   if (!employee) redirect('/auth/login')
 
   const today = format(new Date(), 'yyyy-MM-dd')
+  const todayAr = format(new Date(), 'PPP', { locale: ar })
 
-  const { data: appointments } = await supabase
+  const { data: appointments } = await admin
     .from('appointments')
     .select(`
       *,
@@ -41,48 +46,67 @@ export default async function EmployeePortalPage() {
     .order('scheduled_start')
     .limit(20)
 
+  const todayCount = appointments?.filter((a: { scheduled_date: string }) => a.scheduled_date === today).length || 0
+  const totalCount = appointments?.length || 0
+
+  const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
+    pending:    { label: 'قيد الانتظار',    bg: '#fef9c3', color: '#a16207' },
+    confirmed:  { label: 'مؤكد',           bg: '#dbeafe', color: '#1d4ed8' },
+    on_the_way: { label: 'في الطريق',       bg: '#fce7f3', color: '#be185d' },
+    in_progress:{ label: 'جارٍ',            bg: '#d1fae5', color: '#065f46' },
+    done:       { label: 'منتهي',           bg: '#f0fdf4', color: '#16a34a' },
+    completed:  { label: 'مكتمل',          bg: '#f0fdf4', color: '#16a34a' },
+    cancelled:  { label: 'ملغي',            bg: '#fee2e2', color: '#dc2626' },
+    rejected:   { label: 'مرفوض',          bg: '#fee2e2', color: '#dc2626' },
+  }
+
   return (
-    <div className="min-h-screen bg-background p-4 space-y-6" dir="rtl">
-      <div className="max-w-lg mx-auto">
+    <div style={{ minHeight: '100vh', backgroundColor: '#faf8f5', paddingBottom: 32 }} dir="rtl">
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 16px' }}>
+
         {/* Header */}
-        <div className="bg-gradient-to-l from-primary to-accent rounded-2xl p-5 text-white">
-          <p className="text-white/80 text-sm">مرحباً</p>
-          <h1 className="text-xl font-bold">{employee.name_ar}</h1>
-          <p className="text-white/80 text-sm mt-1">
-            {format(new Date(), 'PPP', { locale: ar })}
-          </p>
+        <div style={{
+          backgroundImage: 'linear-gradient(135deg, #C2847A 0%, #D4A96A 100%)',
+          borderRadius: '0 0 24px 24px',
+          padding: '28px 20px 24px',
+          marginBottom: 20,
+          marginLeft: -16,
+          marginRight: -16,
+        }}>
+          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, margin: '0 0 4px' }}>مرحباً</p>
+          <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 800, margin: '0 0 4px' }}>{employee.name_ar}</h1>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, margin: 0 }}>{todayAr}</p>
         </div>
 
-        {/* Today's count */}
-        <div className="grid grid-cols-2 gap-3">
-          <Card className="border-border/50">
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-primary">
-                {appointments?.filter((a: { scheduled_date: string }) => a.scheduled_date === today).length || 0}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">مواعيد اليوم</p>
-            </CardContent>
-          </Card>
-          <Card className="border-border/50">
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-accent">
-                {appointments?.length || 0}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">المواعيد القادمة</p>
-            </CardContent>
-          </Card>
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+          <div style={{
+            backgroundColor: '#fff', borderRadius: 16, padding: '16px 12px',
+            border: '1px solid #f0f0f0', textAlign: 'center',
+          }}>
+            <p style={{ fontSize: 28, fontWeight: 800, color: '#C2847A', margin: 0 }}>{todayCount}</p>
+            <p style={{ fontSize: 11, color: '#888', margin: '4px 0 0' }}>مواعيد اليوم</p>
+          </div>
+          <div style={{
+            backgroundColor: '#fff', borderRadius: 16, padding: '16px 12px',
+            border: '1px solid #f0f0f0', textAlign: 'center',
+          }}>
+            <p style={{ fontSize: 28, fontWeight: 800, color: '#D4A96A', margin: 0 }}>{totalCount}</p>
+            <p style={{ fontSize: 11, color: '#888', margin: '4px 0 0' }}>المواعيد القادمة</p>
+          </div>
         </div>
 
         {/* Appointments */}
-        <div className="space-y-3">
-          <h2 className="font-semibold text-foreground">المواعيد القادمة</h2>
-          {!appointments?.length ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Calendar className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p>لا توجد مواعيد قادمة</p>
-            </div>
-          ) : (
-            appointments.map((appt: {
+        <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', margin: '0 0 12px' }}>المواعيد القادمة</h2>
+
+        {!appointments?.length ? (
+          <div style={{ textAlign: 'center', padding: '48px 0', color: '#aaa' }}>
+            <Calendar size={48} style={{ marginBottom: 12, opacity: 0.2 }} />
+            <p style={{ margin: 0, fontSize: 14 }}>لا توجد مواعيد قادمة</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {(appointments as Array<{
               id: string
               booking_number: string
               scheduled_date: string
@@ -90,44 +114,72 @@ export default async function EmployeePortalPage() {
               scheduled_end: string
               status: string
               final_price: number
-              payment_method: string
               customer: { name: string; phone: string } | null
-              address: { district_ar: string; city_ar: string; street?: string; building?: string; instructions?: string } | null
+              address: { district_ar: string; city_ar: string; street?: string; instructions?: string } | null
               services: Array<{ service_name_ar: string; duration_minutes: number }>
-            }) => (
-              <Card key={appt.id} className="border-border/50">
-                <CardContent className="p-5 space-y-4">
-                  <div className="flex items-start justify-between">
+            }>).map(appt => {
+              const sc = STATUS_CONFIG[appt.status] || { label: appt.status, bg: '#f5f5f5', color: '#666' }
+              const isToday = appt.scheduled_date === today
+              return (
+                <div key={appt.id} style={{
+                  backgroundColor: '#fff',
+                  borderRadius: 16,
+                  border: `1px solid ${isToday ? 'rgba(194,132,122,0.3)' : '#f0f0f0'}`,
+                  padding: 16,
+                  boxShadow: isToday ? '0 2px 12px rgba(194,132,122,0.1)' : 'none',
+                }}>
+                  {/* Row 1: name + status */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
                     <div>
-                      <p className="font-semibold text-foreground">{appt.customer?.name}</p>
-                      <p className="text-xs text-muted-foreground">{appt.booking_number}</p>
+                      <p style={{ fontWeight: 700, fontSize: 15, color: '#1a1a1a', margin: 0 }}>{appt.customer?.name}</p>
+                      <p style={{ fontSize: 11, color: '#aaa', margin: '2px 0 0' }}>{appt.booking_number}</p>
                     </div>
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${APPOINTMENT_STATUS_COLORS[appt.status]}`}>
-                      {APPOINTMENT_STATUS_AR[appt.status]}
+                    <span style={{
+                      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                      backgroundColor: sc.bg, color: sc.color,
+                    }}>
+                      {sc.label}
                     </span>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>{formatDate(appt.scheduled_date, 'PPP')} - {appt.scheduled_start.slice(0, 5)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4" />
+                  {/* Row 2: date + address */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#666' }}>
+                      <Calendar size={13} />
                       <span>
-                        {appt.address?.district_ar}، {appt.address?.city_ar}
-                        {appt.address?.street && ` - ${appt.address.street}`}
+                        {isToday ? 'اليوم' : format(new Date(appt.scheduled_date), 'PPP', { locale: ar })}
+                        {' — '}
+                        {appt.scheduled_start.slice(0, 5)}
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-1">
-                      {appt.services?.map((s: { service_name_ar: string }, i: number) => (
-                        <Badge key={i} variant="outline" className="text-xs">{s.service_name_ar}</Badge>
-                      ))}
-                    </div>
+                    {appt.address && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#666' }}>
+                        <MapPin size={13} />
+                        <span>{appt.address.district_ar}، {appt.address.city_ar}{appt.address.street ? ` - ${appt.address.street}` : ''}</span>
+                      </div>
+                    )}
                   </div>
 
+                  {/* Services */}
+                  {appt.services?.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 12 }}>
+                      {appt.services.map((s, i) => (
+                        <span key={i} style={{
+                          padding: '2px 8px', borderRadius: 20, fontSize: 11,
+                          border: '1px solid #e5e5e5', color: '#666', backgroundColor: '#fafafa',
+                        }}>
+                          {s.service_name_ar}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Instructions */}
                   {appt.address?.instructions && (
-                    <div className="p-3 bg-amber-50 rounded-xl text-xs text-amber-800">
+                    <div style={{
+                      padding: '8px 12px', backgroundColor: '#fffbeb', borderRadius: 10,
+                      fontSize: 12, color: '#92400e', marginBottom: 12,
+                    }}>
                       📝 {appt.address.instructions}
                     </div>
                   )}
@@ -136,9 +188,16 @@ export default async function EmployeePortalPage() {
                   {appt.customer?.phone && (
                     <a
                       href={`tel:${appt.customer.phone}`}
-                      className="flex items-center justify-center gap-2 w-full p-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm"
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        width: '100%', padding: '10px 0',
+                        borderRadius: 12, border: '1px solid #bbf7d0',
+                        backgroundColor: '#f0fdf4', color: '#16a34a',
+                        fontSize: 13, textDecoration: 'none', marginBottom: 12,
+                      }}
                     >
-                      📞 {appt.customer.phone}
+                      <Phone size={14} />
+                      {appt.customer.phone}
                     </a>
                   )}
 
@@ -146,11 +205,11 @@ export default async function EmployeePortalPage() {
                     appointmentId={appt.id}
                     currentStatus={appt.status}
                   />
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

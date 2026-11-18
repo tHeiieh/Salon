@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calendar, Clock, User, ChevronRight, ChevronLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Calendar } from 'lucide-react'
 import { formatTime } from '@/lib/utils'
 import type { TenantProfile, Employee, BookingState, TimeSlot } from '@/types'
-import { addDays, format, isBefore, startOfDay } from 'date-fns'
+import { addDays, format, startOfDay } from 'date-fns'
 import { ar } from 'date-fns/locale'
 import Image from 'next/image'
 
@@ -69,47 +68,58 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
   const availableSlots = slots.filter(s => s.available)
 
   return (
-    <div className="space-y-6 page-enter">
+    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h2 className="text-2xl font-bold text-foreground">اختاري الموعد</h2>
-        <p className="text-muted-foreground text-sm mt-1">متى يناسبك؟</p>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>اختاري الموعد</h2>
+        <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>متى يناسبك؟</p>
       </div>
 
       {/* Employee Selection */}
       <div>
-        <h3 className="text-sm font-medium text-foreground mb-3">اختاري المتخصصة</h3>
-        <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+        <h3 style={{ fontSize: 13, fontWeight: 500, color: '#1a1a1a', marginBottom: 12 }}>اختاري المتخصصة</h3>
+        <div className="custom-scrollbar" style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
           <button
             onClick={() => setSelectedEmployee('any')}
-            className={`flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all min-w-[72px]`}
-            style={selectedEmployee === 'any'
-              ? { borderColor: primaryColor, backgroundColor: `${primaryColor}10` }
-              : { borderColor: 'transparent', backgroundColor: 'white' }
-            }
+            style={{
+              flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+              padding: 12, borderRadius: 20, border: '2px solid', cursor: 'pointer', minWidth: 72,
+              background: 'none',
+              ...(selectedEmployee === 'any'
+                ? { borderColor: primaryColor, backgroundColor: `${primaryColor}10` }
+                : { borderColor: 'transparent', backgroundColor: '#fff' }),
+            }}
           >
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-xl">
+            <div style={{
+              width: 48, height: 48, borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(194,132,122,0.2) 0%, rgba(212,169,106,0.2) 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+            }}>
               🌸
             </div>
-            <span className="text-xs font-medium text-foreground">أي متخصصة</span>
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#1a1a1a' }}>أي متخصصة</span>
           </button>
+
           {employees.map(emp => (
             <button
               key={emp.id}
               onClick={() => setSelectedEmployee(emp)}
-              className={`flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all min-w-[72px]`}
-              style={selectedEmployee !== 'any' && (selectedEmployee as Employee).id === emp.id
-                ? { borderColor: primaryColor, backgroundColor: `${primaryColor}10` }
-                : { borderColor: 'transparent', backgroundColor: 'white' }
-              }
+              style={{
+                flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                padding: 12, borderRadius: 20, border: '2px solid', cursor: 'pointer', minWidth: 72,
+                background: 'none',
+                ...(selectedEmployee !== 'any' && (selectedEmployee as Employee).id === emp.id
+                  ? { borderColor: primaryColor, backgroundColor: `${primaryColor}10` }
+                  : { borderColor: 'transparent', backgroundColor: '#fff' }),
+              }}
             >
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
+              <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
                 {emp.photo_url ? (
-                  <Image src={emp.photo_url} alt={emp.name_ar} width={48} height={48} className="object-cover" />
+                  <Image src={emp.photo_url} alt={emp.name_ar} width={48} height={48} style={{ objectFit: 'cover' }} />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xl">👩</div>
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>👩</div>
                 )}
               </div>
-              <span className="text-xs font-medium text-foreground text-center">{emp.name_ar}</span>
+              <span style={{ fontSize: 11, fontWeight: 500, color: '#1a1a1a', textAlign: 'center' }}>{emp.name_ar}</span>
             </button>
           ))}
         </div>
@@ -117,8 +127,8 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
 
       {/* Date Selection */}
       <div>
-        <h3 className="text-sm font-medium text-foreground mb-3">اختاري التاريخ</h3>
-        <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+        <h3 style={{ fontSize: 13, fontWeight: 500, color: '#1a1a1a', marginBottom: 12 }}>اختاري التاريخ</h3>
+        <div className="custom-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
           {dates.map(date => {
             const isSelected = selectedDate && format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
             const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
@@ -126,17 +136,20 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
               <button
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
-                className={`flex-shrink-0 flex flex-col items-center px-4 py-3 rounded-2xl border-2 transition-all min-w-[64px]`}
-                style={isSelected
-                  ? { borderColor: primaryColor, backgroundColor: primaryColor, color: 'white' }
-                  : { borderColor: 'transparent', backgroundColor: 'white', color: 'inherit' }
-                }
+                style={{
+                  flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  padding: '12px 16px', borderRadius: 20, border: '2px solid', cursor: 'pointer',
+                  minWidth: 64, transition: 'all 0.15s', background: 'none',
+                  ...(isSelected
+                    ? { borderColor: primaryColor, backgroundColor: primaryColor, color: '#fff' }
+                    : { borderColor: 'transparent', backgroundColor: '#fff', color: '#1a1a1a' }),
+                }}
               >
-                <span className="text-xs font-medium opacity-80">
+                <span style={{ fontSize: 11, fontWeight: 500, opacity: 0.8 }}>
                   {format(date, 'EEE', { locale: ar })}
                 </span>
-                <span className="text-xl font-bold">{format(date, 'd')}</span>
-                {isToday && <span className="text-xs opacity-80">اليوم</span>}
+                <span style={{ fontSize: 20, fontWeight: 800 }}>{format(date, 'd')}</span>
+                {isToday && <span style={{ fontSize: 10, opacity: 0.8 }}>اليوم</span>}
               </button>
             )
           })}
@@ -146,32 +159,34 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
       {/* Time Slots */}
       {selectedDate && (
         <div>
-          <h3 className="text-sm font-medium text-foreground mb-3">اختاري الوقت</h3>
+          <h3 style={{ fontSize: 13, fontWeight: 500, color: '#1a1a1a', marginBottom: 12 }}>اختاري الوقت</h3>
           {loading ? (
-            <div className="grid grid-cols-3 gap-2">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className="h-12 rounded-xl shimmer" />
+                <div key={i} className="shimmer" style={{ height: 48, borderRadius: 12 }} />
               ))}
             </div>
           ) : availableSlots.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Calendar className="w-10 h-10 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">لا توجد مواعيد متاحة في هذا اليوم</p>
-              <p className="text-xs mt-1">جربي تاريخاً آخر</p>
+            <div style={{ textAlign: 'center', padding: '32px 0', color: '#9ca3af' }}>
+              <Calendar size={40} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
+              <p style={{ fontSize: 13, margin: 0 }}>لا توجد مواعيد متاحة في هذا اليوم</p>
+              <p style={{ fontSize: 11, marginTop: 4 }}>جربي تاريخاً آخر</p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {availableSlots.map(slot => {
                 const isSelected = selectedSlot?.time === slot.time
                 return (
                   <button
                     key={slot.time}
                     onClick={() => setSelectedSlot(slot)}
-                    className={`h-12 rounded-xl text-sm font-medium border-2 transition-all`}
-                    style={isSelected
-                      ? { borderColor: primaryColor, backgroundColor: primaryColor, color: 'white' }
-                      : { borderColor: 'hsl(var(--border))', backgroundColor: 'white' }
-                    }
+                    style={{
+                      height: 48, borderRadius: 12, fontSize: 13, fontWeight: 500,
+                      border: '2px solid', cursor: 'pointer', transition: 'all 0.15s',
+                      ...(isSelected
+                        ? { borderColor: primaryColor, backgroundColor: primaryColor, color: '#fff' }
+                        : { borderColor: '#e5e7eb', backgroundColor: '#fff', color: '#1a1a1a' }),
+                    }}
                   >
                     {formatTime(slot.time)}
                   </button>
@@ -182,14 +197,18 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
         </div>
       )}
 
-      <Button
-        className="w-full rounded-xl h-12 text-base"
-        style={{ backgroundColor: primaryColor }}
-        disabled={!selectedDate || !selectedSlot}
+      <button
         onClick={handleNext}
+        disabled={!selectedDate || !selectedSlot}
+        style={{
+          width: '100%', height: 48, borderRadius: 12, border: 'none',
+          backgroundColor: !selectedDate || !selectedSlot ? '#d1d5db' : primaryColor,
+          color: '#fff', fontSize: 15, fontWeight: 600,
+          cursor: !selectedDate || !selectedSlot ? 'not-allowed' : 'pointer',
+        }}
       >
         تأكيد الموعد والمتابعة
-      </Button>
+      </button>
     </div>
   )
 }

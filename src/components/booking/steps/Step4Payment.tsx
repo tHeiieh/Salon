@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { CreditCard, Banknote, Wallet, Tag, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { formatCurrency, calculateVAT, VAT_RATE } from '@/lib/utils'
+import { CreditCard, Banknote, Wallet, AlertCircle } from 'lucide-react'
+import { formatCurrency, calculateVAT } from '@/lib/utils'
 import type { TenantProfile, BookingState, PaymentMethod } from '@/types'
 
 interface Props {
@@ -19,16 +17,26 @@ const BASE_PAYMENT_METHODS = [
   {
     id: 'online' as PaymentMethod,
     label: 'بطاقة بنكية / مدى',
-    icon: <CreditCard className="w-5 h-5" />,
+    icon: <CreditCard size={18} />,
     description: 'ماستركارد، فيزا، مدى، آبل باي',
   },
   {
     id: 'cash' as PaymentMethod,
     label: 'نقداً عند الاستلام',
-    icon: <Banknote className="w-5 h-5" />,
+    icon: <Banknote size={18} />,
     description: 'ادفعي عند وصول المتخصصة',
   },
 ]
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', height: 44, borderRadius: 12, border: '1px solid #e5e7eb',
+  padding: '0 16px', fontSize: 14, backgroundColor: '#fff', outline: 'none',
+  boxSizing: 'border-box', color: '#1a1a1a',
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 6,
+}
 
 export function Step4Payment({ tenant, state, updateState, onNext, primaryColor }: Props) {
   const PAYMENT_METHODS = [
@@ -36,7 +44,7 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
     ...(tenant.deposit_percentage > 0 ? [{
       id: 'deposit' as PaymentMethod,
       label: 'عربون مسبق',
-      icon: <Wallet className="w-5 h-5" />,
+      icon: <Wallet size={18} />,
       description: `ادفعي ${tenant.deposit_percentage}% الآن والباقي عند الخدمة`,
     }] : []),
   ]
@@ -51,7 +59,6 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Price calculations
   const servicesTotal = state.selectedServices.reduce((sum, s) => sum + s.price, 0)
   const travelFee = state.coverageArea?.travel_fee || 0
   const discount = state.appliedCoupon
@@ -106,11 +113,9 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
           services: state.selectedServices.map(s => s.id),
           address: state.newAddress || state.address,
           date: state.selectedDate,
-          time: state.selectedTime,
+          time: state.selectedTime?.substring(0, 5),
           employeeId: state.selectedEmployee !== 'any' && typeof state.selectedEmployee === 'object'
             ? state.selectedEmployee.id
-            : state.selectedEmployee === 'any'
-            ? null
             : null,
           paymentMethod: selectedMethod,
           couponId: state.appliedCoupon?.id,
@@ -132,139 +137,158 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
   }
 
   return (
-    <div className="space-y-6 page-enter">
+    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h2 className="text-2xl font-bold text-foreground">ملخص الطلب والدفع</h2>
-        <p className="text-muted-foreground text-sm mt-1">خطوة أخيرة وسيصلك موعدك</p>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>ملخص الطلب والدفع</h2>
+        <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>خطوة أخيرة وسيصلك موعدك</p>
       </div>
 
       {/* Customer Info */}
-      <div className="bg-white rounded-2xl border border-border/50 p-5 space-y-4">
-        <h3 className="font-semibold text-foreground">بياناتك</h3>
-        <Input
-          label="الاسم الكامل"
-          value={customerName}
-          onChange={e => setCustomerName(e.target.value)}
-          placeholder="اسمك الكريم"
-          required
-        />
-        <Input
-          label="رقم الجوال"
-          value={customerPhone}
-          onChange={e => setCustomerPhone(e.target.value)}
-          placeholder="05xxxxxxxx"
-          type="tel"
-          error={phoneError || undefined}
-          dir="ltr"
-        />
+      <div style={{ backgroundColor: '#fff', borderRadius: 20, border: '1px solid #f0f0f0', padding: 20 }}>
+        <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: '0 0 16px' }}>بياناتك</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label style={labelStyle}>الاسم الكامل</label>
+            <input
+              value={customerName}
+              onChange={e => setCustomerName(e.target.value)}
+              placeholder="اسمك الكريم"
+              style={inputStyle}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>رقم الجوال</label>
+            <input
+              value={customerPhone}
+              onChange={e => setCustomerPhone(e.target.value)}
+              placeholder="05xxxxxxxx"
+              type="tel"
+              dir="ltr"
+              style={{ ...inputStyle, borderColor: phoneError ? '#fca5a5' : '#e5e7eb' }}
+            />
+            {phoneError && <p style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{phoneError}</p>}
+          </div>
+        </div>
       </div>
 
       {/* Order Summary */}
-      <div className="bg-white rounded-2xl border border-border/50 p-5 space-y-3">
-        <h3 className="font-semibold text-foreground">ملخص الخدمات</h3>
-        {state.selectedServices.map(s => (
-          <div key={s.id} className="flex justify-between items-center text-sm">
-            <span className="text-foreground">{s.name_ar}</span>
-            <span className="font-medium">{formatCurrency(s.price)}</span>
+      <div style={{ backgroundColor: '#fff', borderRadius: 20, border: '1px solid #f0f0f0', padding: 20 }}>
+        <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: '0 0 16px' }}>ملخص الخدمات</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {state.selectedServices.map(s => (
+            <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+              <span style={{ color: '#1a1a1a' }}>{s.name_ar}</span>
+              <span style={{ fontWeight: 500 }}>{formatCurrency(s.price)}</span>
+            </div>
+          ))}
+          {travelFee > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#6b7280', borderTop: '1px solid #f0f0f0', paddingTop: 12 }}>
+              <span>رسوم الزيارة المنزلية</span>
+              <span>{formatCurrency(travelFee)}</span>
+            </div>
+          )}
+          {discount > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#16a34a' }}>
+              <span>خصم الكوبون</span>
+              <span>-{formatCurrency(discount)}</span>
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#6b7280', borderTop: '1px solid #f0f0f0', paddingTop: 12 }}>
+            <span>ضريبة القيمة المضافة (15%)</span>
+            <span>{formatCurrency(vat)}</span>
           </div>
-        ))}
-        {travelFee > 0 && (
-          <div className="flex justify-between items-center text-sm text-muted-foreground border-t pt-3">
-            <span>رسوم الزيارة المنزلية</span>
-            <span>{formatCurrency(travelFee)}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 17, fontWeight: 700, borderTop: '2px solid #f0f0f0', paddingTop: 12, color: primaryColor }}>
+            <span>الإجمالي</span>
+            <span>{formatCurrency(total)}</span>
           </div>
-        )}
-        {discount > 0 && (
-          <div className="flex justify-between items-center text-sm text-green-600">
-            <span>خصم الكوبون</span>
-            <span>-{formatCurrency(discount)}</span>
-          </div>
-        )}
-        <div className="flex justify-between items-center text-sm text-muted-foreground border-t pt-3">
-          <span>ضريبة القيمة المضافة (15%)</span>
-          <span>{formatCurrency(vat)}</span>
-        </div>
-        <div
-          className="flex justify-between items-center font-bold text-lg border-t-2 pt-3"
-          style={{ color: primaryColor }}
-        >
-          <span>الإجمالي</span>
-          <span>{formatCurrency(total)}</span>
         </div>
       </div>
 
       {/* Coupon */}
       {!couponApplied && (
-        <div className="flex gap-2">
-          <Input
-            value={couponCode}
-            onChange={e => setCouponCode(e.target.value.toUpperCase())}
-            placeholder="كود الخصم"
-            startIcon={<Tag className="w-4 h-4" />}
-            error={couponError || undefined}
-          />
-          <Button variant="outline" onClick={applyCoupon} className="flex-shrink-0">
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ flex: 1 }}>
+            <input
+              value={couponCode}
+              onChange={e => setCouponCode(e.target.value.toUpperCase())}
+              placeholder="كود الخصم"
+              style={{ ...inputStyle, borderColor: couponError ? '#fca5a5' : '#e5e7eb' }}
+            />
+            {couponError && <p style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{couponError}</p>}
+          </div>
+          <button
+            onClick={applyCoupon}
+            style={{
+              flexShrink: 0, padding: '0 16px', borderRadius: 12, border: '1px solid #e5e7eb',
+              backgroundColor: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', color: '#374151',
+            }}
+          >
             تطبيق
-          </Button>
+          </button>
         </div>
       )}
 
       {/* Payment Methods */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-foreground">طريقة الدفع</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: 0 }}>طريقة الدفع</h3>
         {PAYMENT_METHODS.map(method => (
           <button
             key={method.id}
             onClick={() => setSelectedMethod(method.id)}
-            className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-right`}
-            style={selectedMethod === method.id
-              ? { borderColor: primaryColor, backgroundColor: `${primaryColor}08` }
-              : { borderColor: 'hsl(var(--border))', backgroundColor: 'white' }
-            }
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 16,
+              padding: 16, borderRadius: 20, border: '2px solid', cursor: 'pointer',
+              textAlign: 'right', background: 'none', transition: 'all 0.15s',
+              ...(selectedMethod === method.id
+                ? { borderColor: primaryColor, backgroundColor: `${primaryColor}08` }
+                : { borderColor: '#e5e7eb', backgroundColor: '#fff' }),
+            }}
           >
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={selectedMethod === method.id
-                ? { backgroundColor: primaryColor, color: 'white' }
-                : { backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--muted-foreground))' }
-              }
-            >
+            <div style={{
+              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              ...(selectedMethod === method.id
+                ? { backgroundColor: primaryColor, color: '#fff' }
+                : { backgroundColor: '#f5f5f5', color: '#6b7280' }),
+            }}>
               {method.icon}
             </div>
-            <div className="flex-1">
-              <p className="font-medium text-foreground text-sm">{method.label}</p>
-              <p className="text-xs text-muted-foreground">{method.description}</p>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 500, fontSize: 14, color: '#1a1a1a', margin: 0 }}>{method.label}</p>
+              <p style={{ fontSize: 11, color: '#6b7280', margin: 0 }}>{method.description}</p>
             </div>
-            <div
-              className={`w-5 h-5 rounded-full border-2 transition-all`}
-              style={selectedMethod === method.id
+            <div style={{
+              width: 20, height: 20, borderRadius: '50%', border: '2px solid', flexShrink: 0,
+              ...(selectedMethod === method.id
                 ? { borderColor: primaryColor, backgroundColor: primaryColor }
-                : { borderColor: 'hsl(var(--border))' }
-              }
-            />
+                : { borderColor: '#e5e7eb', backgroundColor: 'transparent' }),
+            }} />
           </button>
         ))}
       </div>
 
       {/* Error */}
       {error && (
-        <div className="p-4 bg-red-50 rounded-xl border border-red-200 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div style={{ padding: 16, backgroundColor: '#fef2f2', borderRadius: 12, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: 2 }} />
+          <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>{error}</p>
         </div>
       )}
 
-      <Button
-        className="w-full rounded-xl h-12 text-base"
-        style={{ backgroundColor: primaryColor }}
-        disabled={!customerName.trim() || loading}
-        loading={loading}
+      <button
         onClick={handleBooking}
+        disabled={!customerName.trim() || loading}
+        style={{
+          width: '100%', height: 48, borderRadius: 12, border: 'none',
+          backgroundColor: !customerName.trim() || loading ? '#d1d5db' : primaryColor,
+          color: '#fff', fontSize: 15, fontWeight: 600,
+          cursor: !customerName.trim() || loading ? 'not-allowed' : 'pointer',
+        }}
       >
-        {selectedMethod === 'online' ? `ادفعي ${formatCurrency(total)}` : 'تأكيد الحجز'}
-      </Button>
+        {loading ? 'جاري الحجز...' : selectedMethod === 'online' ? `ادفعي ${formatCurrency(total)}` : 'تأكيد الحجز'}
+      </button>
 
-      <p className="text-xs text-center text-muted-foreground">
+      <p style={{ fontSize: 11, textAlign: 'center', color: '#9ca3af' }}>
         بالضغط أنتِ توافقين على شروط الحجز وسياسة الإلغاء
       </p>
     </div>

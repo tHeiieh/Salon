@@ -7,7 +7,8 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.redirect(new URL('/auth/login?error=no_user', process.env.NEXT_PUBLIC_APP_URL!))
+    const base = process.env.NEXT_PUBLIC_APP_URL || `https://${process.env.VERCEL_URL}`
+    return NextResponse.redirect(new URL('/auth/login?error=no_user', base))
   }
 
   // Use plain admin client (not SSR) so service role key isn't overridden by session cookies
@@ -22,15 +23,17 @@ export async function GET() {
     .eq('id', user.id)
     .single()
 
+  const base = process.env.NEXT_PUBLIC_APP_URL || `https://${process.env.VERCEL_URL}`
+
   if (!profile) {
-    return NextResponse.redirect(new URL(`/auth/login?error=no_profile&uid=${user.id}`, process.env.NEXT_PUBLIC_APP_URL!))
+    return NextResponse.redirect(new URL(`/auth/login?error=no_profile&uid=${user.id}`, base))
   }
 
   if (profile.role === 'superadmin') {
-    return NextResponse.redirect(new URL('/admin', process.env.NEXT_PUBLIC_APP_URL!))
+    return NextResponse.redirect(new URL('/admin', base))
   }
   if (profile.role === 'employee') {
-    return NextResponse.redirect(new URL('/portal', process.env.NEXT_PUBLIC_APP_URL!))
+    return NextResponse.redirect(new URL('/portal', base))
   }
-  return NextResponse.redirect(new URL('/dashboard', process.env.NEXT_PUBLIC_APP_URL!))
+  return NextResponse.redirect(new URL('/dashboard', base))
 }

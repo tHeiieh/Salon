@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Plus, Minus, Check, Clock, ShoppingBag } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Check, Clock, ShoppingBag, Plus } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { ServiceCategory, Service, BookingState } from '@/types'
 
@@ -36,22 +35,23 @@ export function Step1Services({ categories, state, updateState, onNext, primaryC
     : categories.flatMap(c => c.services?.filter(s => s.is_active) || [])
 
   return (
-    <div className="space-y-6 page-enter">
+    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h2 className="text-2xl font-bold text-foreground">اختاري الخدمة</h2>
-        <p className="text-muted-foreground text-sm mt-1">يمكنك اختيار أكثر من خدمة</p>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>اختاري الخدمة</h2>
+        <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>يمكنك اختيار أكثر من خدمة</p>
       </div>
 
       {/* Category Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+      <div className="custom-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
         <button
           onClick={() => setActiveCat(null)}
-          className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-            activeCat === null
-              ? 'text-white shadow-md'
-              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-          }`}
-          style={activeCat === null ? { backgroundColor: primaryColor } : undefined}
+          style={{
+            flexShrink: 0, padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+            border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+            ...(activeCat === null
+              ? { backgroundColor: primaryColor, color: '#fff' }
+              : { backgroundColor: '#f5f5f5', color: '#6b7280' }),
+          }}
         >
           الكل
         </button>
@@ -59,64 +59,68 @@ export function Step1Services({ categories, state, updateState, onNext, primaryC
           <button
             key={cat.id}
             onClick={() => setActiveCat(cat.id)}
-            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              activeCat === cat.id
-                ? 'text-white shadow-md'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            }`}
-            style={activeCat === cat.id ? { backgroundColor: primaryColor } : undefined}
+            style={{
+              flexShrink: 0, padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+              border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+              ...(activeCat === cat.id
+                ? { backgroundColor: primaryColor, color: '#fff' }
+                : { backgroundColor: '#f5f5f5', color: '#6b7280' }),
+            }}
           >
-            {cat.icon && <span className="ml-1">{cat.icon}</span>}
+            {cat.icon && <span style={{ marginLeft: 4 }}>{cat.icon}</span>}
             {cat.name_ar}
           </button>
         ))}
       </div>
 
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 gap-3">
+      {/* Services list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {activeServices.map(service => {
           const isSelected = selectedIds.has(service.id)
           return (
             <button
               key={service.id}
               onClick={() => toggleService(service)}
-              className={`
-                w-full text-right flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200
-                ${isSelected
-                  ? 'shadow-md scale-[1.01]'
-                  : 'border-border/50 bg-white hover:border-primary/30 hover:shadow-sm'
-                }
-              `}
-              style={isSelected ? { borderColor: primaryColor, backgroundColor: `${primaryColor}08` } : undefined}
+              style={{
+                width: '100%', textAlign: 'right', display: 'flex', alignItems: 'center', gap: 16,
+                padding: 16, borderRadius: 20, border: '2px solid', cursor: 'pointer',
+                transition: 'all 0.2s', background: 'none',
+                ...(isSelected
+                  ? { borderColor: primaryColor, backgroundColor: `${primaryColor}08` }
+                  : { borderColor: '#e5e7eb', backgroundColor: '#fff' }),
+              }}
             >
               {service.image_url && (
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
-                  <Image src={service.image_url} alt={service.name_ar} fill className="object-cover" />
+                <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
+                  <Image src={service.image_url} alt={service.name_ar} fill style={{ objectFit: 'cover' }} />
                 </div>
               )}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground">{service.name_ar}</h3>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: 0 }}>{service.name_ar}</h3>
                 {service.description_ar && (
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{service.description_ar}</p>
+                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {service.description_ar}
+                  </p>
                 )}
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="font-bold text-sm" style={{ color: primaryColor }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: primaryColor }}>
                     {formatCurrency(service.price)}
                   </span>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#6b7280' }}>
+                    <Clock size={11} />
                     {service.duration_minutes} د
                   </span>
                 </div>
               </div>
-              <div
-                className={`
-                  w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all
-                  ${isSelected ? 'text-white' : 'border-border bg-transparent'}
-                `}
-                style={isSelected ? { backgroundColor: primaryColor, borderColor: primaryColor } : undefined}
-              >
-                {isSelected ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4 text-muted-foreground" />}
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid',
+                transition: 'all 0.2s',
+                ...(isSelected
+                  ? { backgroundColor: primaryColor, borderColor: primaryColor, color: '#fff' }
+                  : { backgroundColor: 'transparent', borderColor: '#e5e7eb' }),
+              }}>
+                {isSelected ? <Check size={14} /> : <Plus size={14} style={{ color: '#9ca3af' }} />}
               </div>
             </button>
           )
@@ -125,38 +129,44 @@ export function Step1Services({ categories, state, updateState, onNext, primaryC
 
       {/* Bottom Cart */}
       {state.selectedServices.length > 0 && (
-        <div
-          className="sticky bottom-6 bg-white rounded-2xl shadow-xl border p-4 flex items-center justify-between gap-4"
-          style={{ borderColor: `${primaryColor}30` }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-              style={{ backgroundColor: primaryColor }}
-            >
-              <ShoppingBag className="w-5 h-5" />
+        <div style={{
+          position: 'sticky', bottom: 24, backgroundColor: '#fff',
+          borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          border: `1px solid ${primaryColor}30`,
+          padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 12,
+              backgroundColor: primaryColor, color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <ShoppingBag size={18} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">{state.selectedServices.length} خدمة</p>
-              <p className="text-xs text-muted-foreground">
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>{state.selectedServices.length} خدمة</p>
+              <p style={{ fontSize: 11, color: '#6b7280', margin: 0 }}>
                 {totalDuration} دقيقة • {formatCurrency(totalPrice)}
               </p>
             </div>
           </div>
-          <Button
+          <button
             onClick={onNext}
-            style={{ backgroundColor: primaryColor }}
-            className="rounded-xl px-6"
+            style={{
+              backgroundColor: primaryColor, color: '#fff', border: 'none',
+              borderRadius: 12, padding: '10px 24px', fontSize: 14, fontWeight: 600,
+              cursor: 'pointer',
+            }}
           >
             التالي
-          </Button>
+          </button>
         </div>
       )}
 
       {state.selectedServices.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <div className="text-4xl mb-3">✨</div>
-          <p>اختاري الخدمات التي تريدينها</p>
+        <div style={{ textAlign: 'center', padding: '32px 0', color: '#9ca3af' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>✨</div>
+          <p style={{ margin: 0, fontSize: 14 }}>اختاري الخدمات التي تريدينها</p>
         </div>
       )}
     </div>

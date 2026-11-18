@@ -18,11 +18,11 @@ interface Props {
 }
 
 const STEPS = [
-  { id: 1, label: 'الخدمة', icon: '✦' },
-  { id: 2, label: 'العنوان', icon: '📍' },
-  { id: 3, label: 'الموعد', icon: '🗓' },
-  { id: 4, label: 'الدفع', icon: '💳' },
-  { id: 5, label: 'تأكيد', icon: '✓' },
+  { id: 1, label: 'الخدمة' },
+  { id: 2, label: 'العنوان' },
+  { id: 3, label: 'الموعد' },
+  { id: 4, label: 'الدفع' },
+  { id: 5, label: 'تأكيد' },
 ]
 
 export function BookingFlow({ tenant, initialServices, allCategories, employees, onClose }: Props) {
@@ -43,77 +43,88 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
     else setStep(s => s - 1)
   }, [step, onClose])
 
-  const p = tenant.primary_color
+  const p = tenant.primary_color || '#C2847A'
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5]" dir="rtl">
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#FAF8F5' }} dir="rtl">
 
-      {/* ── HEADER ── */}
-      <div className="sticky top-0 z-50 bg-white shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
-        <div className="max-w-2xl mx-auto px-4 pt-4 pb-3">
+      {/* HEADER */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: '#fff', boxShadow: '0 1px 12px rgba(0,0,0,0.06)' }}>
+        <div style={{ maxWidth: 672, margin: '0 auto', padding: '16px 16px 12px' }}>
 
           {/* top row */}
-          <div className="flex items-center justify-between mb-5">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <button
               onClick={goBack}
-              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xl px-2 py-1 hover:bg-muted/50"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 13, fontWeight: 500, color: '#6b7280',
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: '6px 8px', borderRadius: 10,
+              }}
             >
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight size={16} />
               {step === 1 ? 'العودة' : 'السابق'}
             </button>
 
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground font-medium">{tenant.name_ar}</p>
-              <p className="text-sm font-black text-foreground">{STEPS[step - 1].label}</p>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: 11, color: '#6b7280', fontWeight: 500, margin: 0 }}>{tenant.name_ar}</p>
+              <p style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>{STEPS[step - 1].label}</p>
             </div>
 
             <button
               onClick={onClose}
-              className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-xl hover:bg-muted/50"
               aria-label="إغلاق"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: '#6b7280', padding: 8, borderRadius: 10,
+              }}
             >
-              <X className="w-4 h-4" />
+              <X size={16} />
             </button>
           </div>
 
           {/* Step progress */}
-          <div className="flex items-center">
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             {STEPS.map((s, i) => (
-              <div key={s.id} className="flex items-center flex-1">
-                {/* step bubble */}
-                <div className="flex flex-col items-center">
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                {/* bubble + label */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div
-                    className={`step-circle w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2 ${
-                      step > s.id
-                        ? 'bg-green-500 border-green-500 text-white'
+                    style={{
+                      width: 32, height: 32, borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 12, fontWeight: 800, border: '2px solid',
+                      transition: 'all 0.2s',
+                      ...(step > s.id
+                        ? { backgroundColor: '#22c55e', borderColor: '#22c55e', color: '#fff' }
                         : step === s.id
-                          ? 'border-transparent text-white shadow-md scale-110'
-                          : 'bg-white border-border text-muted-foreground'
-                    }`}
-                    style={step === s.id ? { backgroundColor: p, borderColor: p } : undefined}
+                        ? { backgroundColor: p, borderColor: p, color: '#fff', transform: 'scale(1.1)' }
+                        : { backgroundColor: '#fff', borderColor: '#e5e7eb', color: '#9ca3af' }),
+                    }}
                   >
-                    {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.id}
+                    {step > s.id ? <Check size={14} /> : s.id}
                   </div>
-                  <span
-                    className={`text-[10px] mt-1 font-semibold transition-colors ${
-                      step === s.id ? 'text-foreground' : 'text-muted-foreground'
-                    }`}
-                  >
+                  <span style={{
+                    fontSize: 10, marginTop: 4, fontWeight: 600,
+                    color: step === s.id ? '#1a1a1a' : '#9ca3af',
+                  }}>
                     {s.label}
                   </span>
                 </div>
 
-                {/* connector line */}
+                {/* connector */}
                 {i < STEPS.length - 1 && (
-                  <div className="flex-1 mx-1 mb-4 relative h-0.5 bg-border overflow-hidden rounded-full">
-                    <div
-                      className="step-line absolute inset-y-0 right-0 rounded-full"
-                      style={{
-                        width: step > s.id ? '100%' : '0%',
-                        backgroundColor: step > s.id ? '#22c55e' : p,
-                        transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                      }}
-                    />
+                  <div style={{
+                    flex: 1, margin: '0 4px 16px', height: 2,
+                    backgroundColor: '#e5e7eb', borderRadius: 2, overflow: 'hidden', position: 'relative',
+                  }}>
+                    <div style={{
+                      position: 'absolute', inset: 0, right: 0, borderRadius: 2,
+                      backgroundColor: step > s.id ? '#22c55e' : p,
+                      width: step > s.id ? '100%' : '0%',
+                      transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                    }} />
                   </div>
                 )}
               </div>
@@ -122,8 +133,8 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
         </div>
       </div>
 
-      {/* ── STEP CONTENT ── */}
-      <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 page-enter">
+      {/* STEP CONTENT */}
+      <div className="page-enter" style={{ flex: 1, maxWidth: 672, margin: '0 auto', width: '100%', padding: '24px 16px' }}>
         {step === 1 && (
           <Step1Services
             categories={allCategories}

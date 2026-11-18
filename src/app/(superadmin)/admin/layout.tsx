@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -7,7 +8,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+  const { data: profile } = await admin
     .from('user_profiles')
     .select('role')
     .eq('id', user.id)
@@ -16,9 +22,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-900" dir="rtl">
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: '#0f172a' }} dir="rtl">
       <AdminSidebar />
-      <main className="flex-1 overflow-y-auto bg-slate-50 p-6 custom-scrollbar">
+      <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#f8fafc', padding: 24 }} className="custom-scrollbar">
         {children}
       </main>
     </div>

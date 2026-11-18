@@ -1,22 +1,25 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import type { TenantProfile } from '@/types'
 
 let tenantCache = new Map<string, { data: TenantProfile; ts: number }>()
 const CACHE_TTL = 60_000 // 1 minute
 
+function getAdmin() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
+
 export async function getTenantBySlug(slug: string): Promise<TenantProfile | null> {
   const cached = tenantCache.get(slug)
   if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.data
 
-  const supabase = await createClient()
-  const { data, error } = await supabase
+  const admin = getAdmin()
+  const { data, error } = await admin
     .from('tenants')
-    .select(`
-      id,
-      slug,
-      status,
-      tenant_profiles (*)
-    `)
+    .select(`id, slug, status, tenant_profiles (*)`)
     .eq('slug', slug)
     .eq('status', 'active')
     .single()
@@ -32,8 +35,8 @@ export async function getTenantBySlug(slug: string): Promise<TenantProfile | nul
 }
 
 export async function getTenantById(tenantId: string): Promise<TenantProfile | null> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
+  const admin = getAdmin()
+  const { data, error } = await admin
     .from('tenant_profiles')
     .select('*')
     .eq('tenant_id', tenantId)
