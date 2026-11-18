@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getTenantBySlug } from '@/lib/tenant'
 import type { TenantProfile } from '@/types'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 
 interface Props {
   children: React.ReactNode
@@ -15,7 +15,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${tenant.name_ar} | حجز موعد`,
     description: tenant.description_ar || `احجزي موعدك مع ${tenant.name_ar}`,
-    themeColor: tenant.primary_color,
+  }
+}
+
+export async function generateViewport({ params }: Props): Promise<Viewport> {
+  const { slug } = await params
+  const tenant = await getTenantBySlug(slug)
+  return {
+    themeColor: tenant?.primary_color ?? '#C2847A',
   }
 }
 
