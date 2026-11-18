@@ -4,11 +4,14 @@ import { checkSlotAvailability } from '@/lib/scheduling'
 import { calculateVAT, calculateEndTime, formatPhoneSA, VAT_RATE } from '@/lib/utils'
 import { z } from 'zod'
 
+// Zod v4 enforces strict RFC 4122 variant bits; demo/legacy IDs use format-only UUIDs
+const uid = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'Invalid UUID')
+
 const CreateAppointmentSchema = z.object({
-  tenantId: z.string().uuid(),
+  tenantId: uid,
   customerName: z.string().min(2).max(100),
   customerPhone: z.string().min(9).max(20),
-  services: z.array(z.string().uuid()).min(1),
+  services: z.array(uid).min(1),
   address: z.object({
     city_ar: z.string().min(1),
     city_en: z.string().optional().default(''),
@@ -20,15 +23,14 @@ const CreateAppointmentSchema = z.object({
   }),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   time: z.string().regex(/^\d{2}:\d{2}$/),
-  employeeId: z.string().uuid().nullable().optional(),
+  employeeId: uid.nullable().optional(),
   paymentMethod: z.enum(['cash', 'online', 'deposit']),
-  couponId: z.string().uuid().optional().nullable(),
+  couponId: uid.optional().nullable(),
 })
 
 export async function POST(req: NextRequest) {
-  let body: unknown
   try {
-    body = await req.json()
+    const body = await req.json()
     const data = CreateAppointmentSchema.parse(body)
 
     const supabase = await createServiceRoleClient()
@@ -260,13 +262,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const fields = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')
-      const dbg: Record<string, unknown> = {}
-      for (const issue of error.issues) {
-        const key = issue.path.join('.')
-        const val = issue.path.reduce((o: unknown, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), body)
-        dbg[key] = String(val).slice(0, 60)
-      }
-      return NextResponse.json({ error: `Invalid input: ${fields}`, _debug: dbg }, { status: 400 })
+      return NextResponse.json({ error: `Invalid input: ${fields}` }, { status: 400 })
     }
     console.error('Appointment creation error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
