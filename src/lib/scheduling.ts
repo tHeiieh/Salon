@@ -26,7 +26,7 @@ export interface AvailabilityResult {
 
 // Total duration including prep time for all selected services
 function totalDuration(services: Service[]): number {
-  return services.reduce((sum, s) => sum + s.duration_minutes + s.prep_time_minutes, 0)
+  return services.reduce((sum, s) => sum + (s.duration_minutes || 0) + (s.prep_time_minutes || 0), 0)
 }
 
 // Check if a time range overlaps with existing appointments
