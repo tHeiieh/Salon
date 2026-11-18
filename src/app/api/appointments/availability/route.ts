@@ -25,15 +25,27 @@ export async function GET(req: NextRequest) {
 
   try {
     const supabase = getAdminClient()
-    const { data: services } = await supabase
+    const { data: services, error: svcErr } = await supabase
       .from('services')
       .select('*')
       .in('id', serviceIds)
       .eq('tenant_id', tenantId)
 
     if (!services?.length) {
-      return NextResponse.json({ slots: [], employees: [] })
+      // Debug: check if any services exist for this tenant at all
+      const { data: allSvc } = await supabase.from('services').select('id,name_ar').eq('tenant_id', tenantId).limit(5)
+      console.error('[availability] services not found', { serviceIds, svcErr, tenantServices: allSvc })
+      return NextResponse.json({ slots: [], employees: [], _debug: { step: 'services_not_found', serviceIds, tenantServices: allSvc } })
     }
+
+    // Debug: check employees + schedules raw
+    const { data: rawEmps } = await supabase
+      .from('employees')
+      .select('id, name_ar, is_active, schedules:employee_schedules(*), employee_services(service_id)')
+      .eq('tenant_id', tenantId)
+      .eq('is_active', true)
+
+    console.log('[availability] rawEmps', JSON.stringify(rawEmps?.map(e => ({ id: e.id, name: e.name_ar, scheduleCount: e.schedules?.length, serviceCount: e.employee_services?.length }))))
 
     const result = await getAvailableSlots({
       tenantId,
@@ -42,9 +54,14 @@ export async function GET(req: NextRequest) {
       employeeId,
     })
 
+    if (!result.slots.length) {
+      console.warn('[availability] no slots returned', { tenantId, date, serviceIds, empCount: rawEmps?.length })
+      return NextResponse.json({ ...result, _debug: { rawEmpCount: rawEmps?.length, emps: rawEmps?.map(e => ({ id: e.id, name: e.name_ar, scheduleCount: (e.schedules as unknown[])?.length, serviceCount: (e.employee_services as unknown[])?.length })) } })
+    }
+
     return NextResponse.json(result)
   } catch (error) {
     console.error('Availability error:', error)
-    return NextResponse.json({ slots: [], employees: [] })
+    return NextResponse.json({ slots: [], employees: [], _debug: { error: String(error) } })
   }
 }

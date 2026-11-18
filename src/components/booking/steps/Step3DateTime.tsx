@@ -185,7 +185,7 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
               <p style={{ fontSize: 11, marginTop: 4 }}>جربي تاريخاً آخر</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            <div className="custom-scrollbar" style={{ maxHeight: 320, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 2, paddingRight: 2 }}>
               {availableSlots.map(slot => {
                 const isSelected = selectedSlot?.time === slot.time
                 return (
@@ -193,8 +193,10 @@ export function Step3DateTime({ tenant, state, updateState, onNext, employees, p
                     key={slot.time}
                     onClick={() => setSelectedSlot(slot)}
                     style={{
-                      height: 48, borderRadius: 12, fontSize: 13, fontWeight: 500,
+                      width: '100%', height: 52, borderRadius: 14, fontSize: 15, fontWeight: 600,
                       border: '2px solid', cursor: 'pointer', transition: 'all 0.15s',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      flexShrink: 0,
                       ...(isSelected
                         ? { borderColor: primaryColor, backgroundColor: primaryColor, color: '#fff' }
                         : { borderColor: '#e5e7eb', backgroundColor: '#fff', color: '#1a1a1a' }),
