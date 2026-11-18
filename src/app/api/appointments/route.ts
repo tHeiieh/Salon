@@ -199,7 +199,7 @@ export async function POST(req: NextRequest) {
         customer_id: customerId,
         employee_id: employeeId,
         address_id: savedAddress.id,
-        status: data.paymentMethod === 'online' ? 'payment_pending' : 'pending',
+        status: data.paymentMethod === 'online' ? 'payment_pending' : data.paymentMethod === 'cash' ? 'confirmed' : 'pending',
         scheduled_date: data.date,
         scheduled_start: data.time,
         scheduled_end: scheduledEnd,
@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
     await supabase.from('appointment_status_history').insert({
       appointment_id: appointment.id,
       tenant_id: data.tenantId,
-      new_status: data.paymentMethod === 'online' ? 'payment_pending' : 'pending',
+      new_status: data.paymentMethod === 'online' ? 'payment_pending' : data.paymentMethod === 'cash' ? 'confirmed' : 'pending',
       note: 'Booking created',
     })
 

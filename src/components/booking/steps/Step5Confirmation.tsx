@@ -39,7 +39,7 @@ export function Step5Confirmation({ bookingId, tenant, state, primaryColor, onNe
         </div>
         <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>تم الحجز بنجاح! 🎉</h2>
         <p style={{ color: '#6b7280', fontSize: 13, marginTop: 8 }}>
-          سيتم التواصل معك قريباً لتأكيد الموعد
+          {appointment?.status === 'confirmed' ? 'تم تأكيد حجزك بنجاح ✓' : 'سيتم التواصل معك قريباً لتأكيد الموعد'}
         </p>
       </div>
 
