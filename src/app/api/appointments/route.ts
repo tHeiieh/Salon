@@ -71,28 +71,19 @@ export async function POST(req: NextRequest) {
     )
 
     // 4. Get coverage area & travel fee
-    const { data: coverageArea, error: coverageErr } = await supabase
+    const { data: coverageAreas } = await supabase
       .from('coverage_areas')
       .select('*')
       .eq('tenant_id', data.tenantId)
       .eq('city_name_ar', data.address.city_ar)
       .eq('district_name_ar', data.address.district_ar)
       .eq('is_active', true)
-      .single()
+      .limit(1)
+
+    const coverageArea = coverageAreas?.[0] ?? null
 
     if (!coverageArea) {
-      const { data: allAreas } = await supabase
-        .from('coverage_areas')
-        .select('city_name_ar, district_name_ar, is_active')
-        .eq('tenant_id', data.tenantId)
-      return NextResponse.json({
-        error: 'Service area not covered',
-        _debug: {
-          queried: { city: data.address.city_ar, district: data.address.district_ar, tenant: data.tenantId },
-          supabaseError: coverageErr?.message,
-          areasInDB: allAreas?.map(a => `${a.city_name_ar}/${a.district_name_ar}(active:${a.is_active})`),
-        },
-      }, { status: 400 })
+      return NextResponse.json({ error: 'Service area not covered' }, { status: 400 })
     }
 
     const travelFee = Number(coverageArea.travel_fee)
