@@ -92,7 +92,7 @@ export function AdminSidebar() {
               {group.label}
             </p>
             {group.items.map((item) => {
-              const isActive = item.exact
+              const isActive = ('exact' in item && item.exact)
                 ? pathname === item.href
                 : pathname.startsWith(item.href)
               return (

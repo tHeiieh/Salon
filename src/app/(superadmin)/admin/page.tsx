@@ -189,10 +189,8 @@ export default async function AdminDashboardPage() {
         <SectionCard title="المدفوعات الأخيرة" href="/admin/billing">
           {!recentPayments?.length ? (
             <div style={{ padding: '32px 20px', textAlign: 'center', color: '#aaa', fontSize: 13 }}>لا توجد مدفوعات بعد</div>
-          ) : (recentPayments || []).map((p: {
-            amount: number; status: string; created_at: string
-            tenants: { slug: string; tenant_profiles: { name_ar?: string } | Array<{ name_ar?: string }> | null } | null
-          }, i: number) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) : (recentPayments || []).map((p: any, i: number) => {
             const sc = p.status === 'paid' ? { bg: '#dcfce7', color: '#16a34a' } : { bg: '#fef9c3', color: '#a16207' }
             return (
               <div key={i} style={{
