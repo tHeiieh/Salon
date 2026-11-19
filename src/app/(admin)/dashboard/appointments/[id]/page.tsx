@@ -48,7 +48,7 @@ export default async function AppointmentDetailPage({
       cancelled_by, cancelled_at, completed_at, created_at,
       customer:customers(name, phone, email),
       employee:employees(name_ar, phone),
-      address:customer_addresses(district_ar, city_ar, street_ar, notes),
+      address:customer_addresses(district_ar, city_ar, street, instructions),
       services:appointment_services(id, service_name_ar, price, duration_minutes),
       history:appointment_status_history(id, old_status, new_status, note, created_at)
     `)
@@ -123,11 +123,11 @@ export default async function AppointmentDetailPage({
           {a.address?.district_ar || '—'}
           {a.address?.city_ar ? `, ${a.address.city_ar}` : ''}
         </Row>
-        {a.address?.street_ar && (
-          <Row icon={null} label="الشارع">{a.address.street_ar}</Row>
+        {a.address?.street && (
+          <Row icon={null} label="الشارع">{a.address.street}</Row>
         )}
-        {a.address?.notes && (
-          <Row icon={null} label="ملاحظات">{a.address.notes}</Row>
+        {a.address?.instructions && (
+          <Row icon={null} label="تعليمات">{a.address.instructions}</Row>
         )}
       </Section>
 
