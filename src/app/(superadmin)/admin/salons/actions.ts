@@ -53,6 +53,32 @@ export async function assignPlan(tenantId: string, planId: string, billingCycle:
   revalidatePath('/admin')
 }
 
+export async function updateSalonProfile(tenantId: string, data: {
+  name_ar: string; email: string; phone: string; city?: string
+}) {
+  const { admin } = await getSuperAdminContext()
+  const { error } = await admin.from('tenant_profiles').update({
+    name_ar: data.name_ar,
+    email: data.email,
+    phone: data.phone,
+    ...(data.city ? { city: data.city } : {}),
+  }).eq('id', tenantId)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin/salons')
+  revalidatePath(`/admin/salons/${tenantId}`)
+  revalidatePath('/admin')
+}
+
+export async function deleteSalon(id: string) {
+  const { admin } = await getSuperAdminContext()
+  await admin.from('tenant_subscriptions').delete().eq('tenant_id', id)
+  await admin.from('platform_payments').delete().eq('tenant_id', id)
+  const { error } = await admin.from('tenants').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin/salons')
+  revalidatePath('/admin')
+}
+
 export async function extendTrial(tenantId: string, days: number) {
   const { admin } = await getSuperAdminContext()
   const { data: sub } = await admin.from('tenant_subscriptions')

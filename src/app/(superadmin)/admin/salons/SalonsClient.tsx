@@ -2,8 +2,8 @@
 
 import { useState, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Building2, ExternalLink, Power, PowerOff, CreditCard, Calendar } from 'lucide-react'
-import { activateSalon, suspendSalon, assignPlan, extendTrial } from './actions'
+import { Search, Building2, ExternalLink, Power, PowerOff, CreditCard, Calendar, Pencil, Trash2 } from 'lucide-react'
+import { activateSalon, suspendSalon, assignPlan, extendTrial, updateSalonProfile, deleteSalon } from './actions'
 import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -58,6 +58,9 @@ export function SalonsClient({ salons: initial, plans }: { salons: Salon[]; plan
   const [error, setError] = useState<string | null>(null)
   const [trialModal, setTrialModal] = useState<Salon | null>(null)
   const [trialDays, setTrialDays] = useState('30')
+  const [editModal, setEditModal] = useState<Salon | null>(null)
+  const [editForm, setEditForm] = useState({ name_ar: '', email: '', phone: '', city: '' })
+  const [deleteModal, setDeleteModal] = useState<Salon | null>(null)
 
   const filtered = useMemo(() => {
     return initial.filter(s => {
@@ -88,6 +91,30 @@ export function SalonsClient({ salons: initial, plans }: { salons: Salon[]; plan
       try {
         await assignPlan(assignModal.id, assignPlanId, assignCycle)
         setAssignModal(null)
+        router.refresh()
+      } catch (e) { setError(e instanceof Error ? e.message : 'حدث خطأ') }
+    })
+  }
+
+  async function doEdit() {
+    if (!editModal) return
+    setError(null)
+    startTransition(async () => {
+      try {
+        await updateSalonProfile(editModal.id, editForm)
+        setEditModal(null)
+        router.refresh()
+      } catch (e) { setError(e instanceof Error ? e.message : 'حدث خطأ') }
+    })
+  }
+
+  async function doDelete() {
+    if (!deleteModal) return
+    setError(null)
+    startTransition(async () => {
+      try {
+        await deleteSalon(deleteModal.id)
+        setDeleteModal(null)
         router.refresh()
       } catch (e) { setError(e instanceof Error ? e.message : 'حدث خطأ') }
     })
@@ -214,6 +241,12 @@ export function SalonsClient({ salons: initial, plans }: { salons: Salon[]; plan
                 <Link href={`/book/${salon.slug}`} target="_blank">
                   <button style={btn('ghost')} title="فتح الصالون"><ExternalLink size={12} /></button>
                 </Link>
+                <button style={btn('outline')} onClick={() => {
+                  setEditModal(salon)
+                  setEditForm({ name_ar: p?.name_ar || '', email: p?.email || '', phone: p?.phone || '', city: (p as {city?:string})?.city || '' })
+                }} title="تعديل">
+                  <Pencil size={12} />
+                </button>
                 <button style={btn('outline')} onClick={() => { setAssignModal(salon); setAssignPlanId(plans[0]?.id || ''); setAssignCycle('monthly') }} title="تعيين خطة">
                   <CreditCard size={12} />
                 </button>
@@ -229,6 +262,9 @@ export function SalonsClient({ salons: initial, plans }: { salons: Salon[]; plan
                     <Power size={12} />
                   </button>
                 )}
+                <button style={{ ...btn('danger'), color: '#dc2626' }} onClick={() => setDeleteModal(salon)} title="حذف">
+                  <Trash2 size={12} />
+                </button>
               </div>
             </div>
           )
@@ -319,6 +355,74 @@ export function SalonsClient({ salons: initial, plans }: { salons: Salon[]; plan
               <button onClick={() => setTrialModal(null)} style={{
                 width: 80, height: 42, borderRadius: 10, border: '1.5px solid #e5e5e5',
                 backgroundColor: '#fff', fontSize: 13, color: '#666', cursor: 'pointer',
+              }}>إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Profile Modal */}
+      {editModal && (
+        <div style={{ position:'fixed', inset:0, backgroundColor:'rgba(0,0,0,0.5)', zIndex:50, display:'flex', alignItems:'center', justifyContent:'center' }}
+          onClick={e => e.target===e.currentTarget && setEditModal(null)}>
+          <div style={{ backgroundColor:'#fff', borderRadius:16, padding:28, width:'100%', maxWidth:440 }} dir="rtl">
+            <h3 style={{ fontSize:16, fontWeight:700, margin:'0 0 20px' }}>تعديل بيانات الصالون</h3>
+            {[
+              { key:'name_ar', label:'اسم الصالون', type:'text' },
+              { key:'email',   label:'البريد الإلكتروني', type:'email' },
+              { key:'phone',   label:'رقم الجوال', type:'tel' },
+              { key:'city',    label:'المدينة', type:'text' },
+            ].map(f => (
+              <div key={f.key} style={{ marginBottom:14 }}>
+                <label style={{ fontSize:12, fontWeight:600, color:'#555', display:'block', marginBottom:5 }}>{f.label}</label>
+                <input
+                  style={inp} type={f.type}
+                  value={editForm[f.key as keyof typeof editForm]}
+                  onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                />
+              </div>
+            ))}
+            <div style={{ display:'flex', gap:10, marginTop:20 }}>
+              <button onClick={doEdit} disabled={isPending} style={{
+                flex:1, height:42, borderRadius:10, border:'none', cursor:'pointer',
+                backgroundImage:'linear-gradient(135deg,#C2847A,#b06470)', color:'#fff', fontWeight:700, fontSize:14,
+              }}>
+                {isPending ? 'جارٍ الحفظ...' : 'حفظ التغييرات'}
+              </button>
+              <button onClick={() => setEditModal(null)} style={{
+                width:80, height:42, borderRadius:10, border:'1.5px solid #e5e5e5',
+                backgroundColor:'#fff', fontSize:13, color:'#666', cursor:'pointer',
+              }}>إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirm Modal */}
+      {deleteModal && (
+        <div style={{ position:'fixed', inset:0, backgroundColor:'rgba(0,0,0,0.5)', zIndex:50, display:'flex', alignItems:'center', justifyContent:'center' }}
+          onClick={e => e.target===e.currentTarget && setDeleteModal(null)}>
+          <div style={{ backgroundColor:'#fff', borderRadius:16, padding:28, width:'100%', maxWidth:360 }}>
+            <div style={{ width:48, height:48, borderRadius:14, backgroundColor:'#fee2e2', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
+              <Trash2 size={22} style={{ color:'#dc2626' }} />
+            </div>
+            <h3 style={{ fontSize:16, fontWeight:700, margin:'0 0 10px', textAlign:'center' }}>حذف الصالون</h3>
+            <p style={{ fontSize:13, color:'#555', margin:'0 0 6px', textAlign:'center' }}>
+              هل أنت متأكد من حذف <strong>{deleteModal.profile?.name_ar || deleteModal.slug}</strong>؟
+            </p>
+            <p style={{ fontSize:12, color:'#dc2626', margin:'0 0 24px', textAlign:'center' }}>
+              سيتم حذف الاشتراك والمدفوعات المرتبطة به نهائياً.
+            </p>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={doDelete} disabled={isPending} style={{
+                flex:1, height:42, borderRadius:10, border:'none', cursor:'pointer',
+                backgroundColor:'#dc2626', color:'#fff', fontWeight:700, fontSize:14,
+              }}>
+                {isPending ? 'جارٍ الحذف...' : 'حذف نهائياً'}
+              </button>
+              <button onClick={() => setDeleteModal(null)} style={{
+                width:80, height:42, borderRadius:10, border:'1.5px solid #e5e5e5',
+                backgroundColor:'#fff', fontSize:13, color:'#666', cursor:'pointer',
               }}>إلغاء</button>
             </div>
           </div>
