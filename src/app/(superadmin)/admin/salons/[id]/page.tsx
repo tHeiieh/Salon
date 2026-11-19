@@ -171,7 +171,7 @@ export default async function SalonDetailPage({ params }: { params: Promise<{ id
                 sub.status === 'cancelled' ? 'ملغي' : sub.status
               } />
               <InfoRow label="دورة الفوترة" value={sub.billing_cycle === 'monthly' ? 'شهري' : 'سنوي'} />
-              <InfoRow label="المبلغ المدفوع" value={formatCurrency(sub.amount_paid || 0)} />
+              <InfoRow label="المبلغ" value={formatCurrency(sub.billing_cycle === 'monthly' ? sub.plan?.price_monthly || 0 : sub.plan?.price_yearly || 0)} />
               <InfoRow label="بداية الفترة" value={new Date(sub.current_period_start).toLocaleDateString('ar-SA')} />
               <InfoRow label="نهاية الفترة" value={new Date(sub.current_period_end).toLocaleDateString('ar-SA')} />
             </>

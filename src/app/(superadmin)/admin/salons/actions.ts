@@ -42,7 +42,6 @@ export async function assignPlan(tenantId: string, planId: string, billingCycle:
     billing_cycle: billingCycle,
     current_period_start: now.toISOString(),
     current_period_end: periodEnd.toISOString(),
-    amount_paid: amount,
   })
   if (error) throw new Error(error.message)
 
@@ -100,7 +99,6 @@ export async function extendTrial(tenantId: string, days: number) {
       billing_cycle: 'monthly',
       current_period_start: new Date().toISOString(),
       current_period_end: base.toISOString(),
-      amount_paid: 0,
     })
   }
 

@@ -12,9 +12,9 @@ export default async function SubscriptionsPage() {
   const [{ data: subs }, { data: plans }] = await Promise.all([
     admin.from('tenant_subscriptions')
       .select(`
-        id, status, billing_cycle, current_period_end, amount_paid, created_at, tenant_id,
+        id, status, billing_cycle, current_period_end, created_at, tenant_id,
         tenant:tenants(slug, tenant_profiles(name_ar)),
-        plan:subscription_plans(name_ar, name_en)
+        plan:subscription_plans(name_ar, name_en, price_monthly, price_yearly)
       `)
       .order('created_at', { ascending: false })
       .limit(100),
@@ -34,12 +34,14 @@ export default async function SubscriptionsPage() {
 
   const active = normalized.filter(s => s.status === 'active').length
   const trial  = normalized.filter(s => s.status === 'trial').length
+  const getAmount = (s: { billing_cycle: string; plan?: { price_monthly?: number; price_yearly?: number } | null }) =>
+    s.billing_cycle === 'monthly' ? Number(s.plan?.price_monthly ?? 0) : Number(s.plan?.price_yearly ?? 0)
   const mrr    = normalized
     .filter(s => s.status === 'active' && s.billing_cycle === 'monthly')
-    .reduce((sum: number, s: { amount_paid: number }) => sum + Number(s.amount_paid), 0)
+    .reduce((sum: number, s: any) => sum + getAmount(s), 0)
   + normalized
     .filter(s => s.status === 'active' && s.billing_cycle === 'yearly')
-    .reduce((sum: number, s: { amount_paid: number }) => sum + Number(s.amount_paid) / 12, 0)
+    .reduce((sum: number, s: any) => sum + getAmount(s) / 12, 0)
 
   return (
     <div dir="rtl">

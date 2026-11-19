@@ -9,9 +9,9 @@ import { formatCurrency } from '@/lib/utils'
 type Plan = { id: string; name_ar: string; price_monthly: number; price_yearly: number }
 type Sub = {
   id: string; status: string; billing_cycle: string
-  current_period_end: string; amount_paid: number; created_at: string
+  current_period_end: string; created_at: string
   tenant: { slug: string; name?: string } | null
-  plan: { name_ar: string; name_en?: string } | null
+  plan: { name_ar: string; name_en?: string; price_monthly?: number; price_yearly?: number } | null
   tenant_id?: string
 }
 
@@ -126,7 +126,7 @@ export function SubsClient({ subs: initial, plans, stats }: {
               <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{sub.tenant?.name || sub.tenant?.slug || '—'}</span>
               <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20, display: 'inline-block', backgroundColor: sb.bg, color: sb.color }}>{sb.label}</span>
               <span style={{ fontSize: 12, color: '#555' }}>{sub.plan?.name_ar || '—'}</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{formatCurrency(sub.amount_paid)}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{formatCurrency(sub.billing_cycle === 'monthly' ? sub.plan?.price_monthly ?? 0 : sub.plan?.price_yearly ?? 0)}</span>
               <span style={{ fontSize: 11, color: sub.status==='active' && new Date(sub.current_period_end) < new Date(Date.now()+7*864e5) ? '#dc2626' : '#888' }}>
                 {new Date(sub.current_period_end).toLocaleDateString('ar-SA')}
               </span>

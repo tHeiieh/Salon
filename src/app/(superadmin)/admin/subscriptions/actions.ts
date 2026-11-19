@@ -34,7 +34,6 @@ export async function changeSubscriptionPlan(subId: string, planId: string, bill
     .update({
       plan_id: planId,
       billing_cycle: billingCycle,
-      amount_paid: amount,
       status: 'active',
       current_period_start: now.toISOString(),
       current_period_end: end.toISOString(),

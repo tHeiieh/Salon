@@ -41,8 +41,8 @@ export default async function BillingPage() {
   ] = await Promise.all([
     admin.from('platform_payments').select('amount, status'),
     admin.from('platform_payments').select('amount, status').gte('created_at', startOfMonth.toISOString()),
-    admin.from('tenant_subscriptions').select('amount_paid').eq('status', 'active').eq('billing_cycle', 'monthly'),
-    admin.from('tenant_subscriptions').select('amount_paid').eq('status', 'active').eq('billing_cycle', 'yearly'),
+    admin.from('tenant_subscriptions').select('billing_cycle, plan:subscription_plans(price_monthly, price_yearly)').eq('status', 'active').eq('billing_cycle', 'monthly'),
+    admin.from('tenant_subscriptions').select('billing_cycle, plan:subscription_plans(price_monthly, price_yearly)').eq('status', 'active').eq('billing_cycle', 'yearly'),
     admin.from('platform_payments')
       .select('id, amount, status, created_at, tenants(slug, tenant_profiles(name_ar))')
       .order('created_at', { ascending: false })
@@ -52,8 +52,9 @@ export default async function BillingPage() {
   const totalRevenue = (allPayments || []).filter((p: { status: string }) => p.status === 'paid').reduce((s: number, p: { amount: number }) => s + Number(p.amount), 0)
   const monthRevenue = (monthPayments || []).filter((p: { status: string }) => p.status === 'paid').reduce((s: number, p: { amount: number }) => s + Number(p.amount), 0)
   const pendingRevenue = (allPayments || []).filter((p: { status: string }) => p.status !== 'paid').reduce((s: number, p: { amount: number }) => s + Number(p.amount), 0)
-  const mrr = (activeMonthlySubs || []).reduce((s: number, x: { amount_paid: number }) => s + Number(x.amount_paid), 0)
-    + (activeYearlySubs || []).reduce((s: number, x: { amount_paid: number }) => s + Number(x.amount_paid), 0) / 12
+  const getSubAmt = (x: any) => x.billing_cycle === 'monthly' ? Number(x.plan?.price_monthly ?? 0) : Number(x.plan?.price_yearly ?? 0)
+  const mrr = (activeMonthlySubs || []).reduce((s: number, x: any) => s + getSubAmt(x), 0)
+    + (activeYearlySubs || []).reduce((s: number, x: any) => s + getSubAmt(x), 0) / 12
   const arr = mrr * 12
 
   const stats = [

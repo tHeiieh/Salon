@@ -108,8 +108,8 @@ export default async function AdminDashboardPage() {
     admin.from('tenants').select('id', { count: 'exact', head: true }).eq('status', 'trial'),
     admin.from('tenants').select('id', { count: 'exact', head: true }).eq('status', 'suspended'),
     admin.from('tenants').select('id', { count: 'exact', head: true }).gte('created_at', startOfMonth.toISOString()),
-    admin.from('tenant_subscriptions').select('amount_paid').eq('status', 'active').eq('billing_cycle', 'monthly'),
-    admin.from('tenant_subscriptions').select('amount_paid').eq('status', 'active').eq('billing_cycle', 'yearly'),
+    admin.from('tenant_subscriptions').select('billing_cycle, plan:subscription_plans(price_monthly, price_yearly)').eq('status', 'active').eq('billing_cycle', 'monthly'),
+    admin.from('tenant_subscriptions').select('billing_cycle, plan:subscription_plans(price_monthly, price_yearly)').eq('status', 'active').eq('billing_cycle', 'yearly'),
     admin.from('tenants')
       .select('id, slug, status, created_at, tenant_profiles(name_ar)')
       .order('created_at', { ascending: false }).limit(8),
@@ -125,8 +125,9 @@ export default async function AdminDashboardPage() {
       .limit(5),
   ])
 
-  const mrr = (activeMonthlySubs || []).reduce((s: number, x: { amount_paid: number }) => s + Number(x.amount_paid), 0)
-  const yearlyMonthly = (activeYearlySubs || []).reduce((s: number, x: { amount_paid: number }) => s + Number(x.amount_paid), 0) / 12
+  const getSubAmount = (x: any) => x.billing_cycle === 'monthly' ? Number(x.plan?.price_monthly ?? 0) : Number(x.plan?.price_yearly ?? 0)
+  const mrr = (activeMonthlySubs || []).reduce((s: number, x: any) => s + getSubAmount(x), 0)
+  const yearlyMonthly = (activeYearlySubs || []).reduce((s: number, x: any) => s + getSubAmount(x), 0) / 12
   const totalMrr = mrr + yearlyMonthly
   const arr = totalMrr * 12
 

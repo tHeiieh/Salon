@@ -12,8 +12,8 @@ type Salon = {
   id: string; slug: string; status: string; created_at: string
   profile: { name_ar?: string; email?: string; phone?: string } | null
   subscription: Array<{
-    status: string; current_period_end: string; amount_paid: number; billing_cycle: string
-    plan: { name_ar: string } | null
+    status: string; current_period_end: string; billing_cycle: string
+    plan: { name_ar: string; price_monthly: number; price_yearly: number } | null
   }> | null
 }
 
@@ -225,7 +225,7 @@ export function SalonsClient({ salons: initial, plans }: { salons: Salon[]; plan
                   <>
                     <p style={{ fontSize: 12, fontWeight: 500, margin: 0, color: '#1a1a1a' }}>{sub.plan?.name_ar || '-'}</p>
                     <p style={{ fontSize: 11, color: '#aaa', margin: '2px 0 0' }}>
-                      {formatCurrency(sub.amount_paid)} · {sub.billing_cycle === 'monthly' ? 'شهري' : 'سنوي'}
+                      {formatCurrency(sub.billing_cycle === 'monthly' ? sub.plan?.price_monthly ?? 0 : sub.plan?.price_yearly ?? 0)} · {sub.billing_cycle === 'monthly' ? 'شهري' : 'سنوي'}
                     </p>
                   </>
                 ) : <span style={{ fontSize: 12, color: '#aaa' }}>لا يوجد</span>}

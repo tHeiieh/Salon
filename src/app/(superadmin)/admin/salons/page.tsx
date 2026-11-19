@@ -14,7 +14,7 @@ export default async function SalonsPage() {
       .select(`
         id, slug, status, created_at,
         profile:tenant_profiles(name_ar, email, phone),
-        subscription:tenant_subscriptions(status, current_period_end, amount_paid, billing_cycle, plan:subscription_plans(name_ar))
+        subscription:tenant_subscriptions(status, current_period_end, billing_cycle, plan:subscription_plans(name_ar, price_monthly, price_yearly))
       `)
       .order('created_at', { ascending: false }),
     admin.from('subscription_plans')
