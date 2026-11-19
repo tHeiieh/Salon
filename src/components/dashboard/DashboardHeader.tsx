@@ -1,15 +1,16 @@
 'use client'
 
-import { Bell } from 'lucide-react'
+import { Bell, Menu } from 'lucide-react'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
 
 interface Props {
   userProfile: { name_ar?: string; name_en?: string; avatar_url?: string }
+  onMenuClick?: () => void
 }
 
-export function DashboardHeader({ userProfile }: Props) {
-  const today = format(new Date(), 'EEEE، d MMMM', { locale: ar })
+export function DashboardHeader({ userProfile, onMenuClick }: Props) {
+  const today = format(new Date(), 'EEEE، d MMMM yyyy', { locale: ar })
 
   return (
     <header
@@ -25,12 +26,28 @@ export function DashboardHeader({ userProfile }: Props) {
         boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
       }}
     >
-      <div>
-        <p style={{ fontSize: 12, color: '#999', margin: 0 }}>{today}</p>
-        <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
-          مرحباً، {userProfile.name_ar || 'المدير'}
-        </h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Mobile hamburger */}
+        <button
+          className="dash-menu-btn"
+          onClick={onMenuClick}
+          style={{
+            width: 36, height: 36, borderRadius: 10, border: 'none',
+            backgroundColor: '#f5f5f5', cursor: 'pointer',
+            display: 'none', alignItems: 'center', justifyContent: 'center',
+            color: '#666', flexShrink: 0,
+          }}
+        >
+          <Menu size={18} />
+        </button>
+        <div>
+          <p style={{ fontSize: 11, color: '#999', margin: 0 }}>{today}</p>
+          <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
+            مرحباً، {userProfile.name_ar || 'المدير'}
+          </h2>
+        </div>
       </div>
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ position: 'relative' }}>
           <button
@@ -62,6 +79,12 @@ export function DashboardHeader({ userProfile }: Props) {
           {(userProfile.name_ar || 'م').charAt(0)}
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .dash-menu-btn { display: flex !important; }
+        }
+      `}</style>
     </header>
   )
 }

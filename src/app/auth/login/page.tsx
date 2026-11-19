@@ -86,7 +86,7 @@ export default function LoginPage() {
     <div dir="rtl" style={{ minHeight: '100vh', display: 'flex', fontFamily: "'Cairo', 'Tajawal', sans-serif" }}>
 
       {/* ── LEFT decorative panel ── */}
-      <div style={{
+      <div className="login-deco" style={{
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         flex: 1, padding: 48, position: 'relative', overflow: 'hidden',
         backgroundImage: 'linear-gradient(145deg, #C2847A 0%, #b06b7a 40%, #d4a96a 100%)',
@@ -142,7 +142,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT login panel ── */}
-      <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 40px', backgroundColor: 'white' }}>
+      <div className="login-panel" style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 40px', backgroundColor: 'white', overflowY: 'auto' }}>
 
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
@@ -296,7 +296,13 @@ export default function LoginPage() {
         )}
       </div>
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          .login-deco { display: none !important; }
+          .login-panel { max-width: 100% !important; padding: 32px 20px !important; }
+        }
+      `}</style>
     </div>
   )
 }

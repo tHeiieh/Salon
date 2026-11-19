@@ -1,8 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
-import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
+import { DashboardShell } from '@/components/dashboard/DashboardShell'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -51,19 +50,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         fontFamily: 'var(--font-sans, system-ui)',
       }}
     >
-      <DashboardSidebar userProfile={profileWithTenantProfile} />
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-        <DashboardHeader userProfile={profileWithTenantProfile} />
-        <main
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: 24,
-          }}
-        >
-          {children}
-        </main>
-      </div>
+      <DashboardShell userProfile={profileWithTenantProfile}>
+        {children}
+      </DashboardShell>
     </div>
   )
 }
