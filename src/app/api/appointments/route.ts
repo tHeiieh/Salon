@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceRoleClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { checkSlotAvailability } from '@/lib/scheduling'
 import { calculateVAT, calculateEndTime, formatPhoneSA, VAT_RATE } from '@/lib/utils'
 import { z } from 'zod'
@@ -33,7 +33,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const data = CreateAppointmentSchema.parse(body)
 
-    const supabase = await createServiceRoleClient()
+    const supabase = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    )
 
     // 1. Verify tenant is active
     const { data: tenant } = await supabase
