@@ -2,6 +2,7 @@ import { getAuthContext } from '@/lib/server/getAuthContext'
 import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { Calendar } from 'lucide-react'
+import { CancelAppointmentButton } from '@/components/dashboard/CancelAppointmentButton'
 
 const STATUS_FILTERS = [
   { value: '', label: 'الكل' },
@@ -133,7 +134,7 @@ export default async function AppointmentsPage({
                       {appt.employee?.name_ar ? ` • ${appt.employee.name_ar}` : ''}
                     </p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                     <span style={{
                       display: 'inline-block', padding: '3px 10px', borderRadius: 20,
                       fontSize: 11, fontWeight: 600,
@@ -141,9 +142,12 @@ export default async function AppointmentsPage({
                     }}>
                       {cfg.label}
                     </span>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', margin: '4px 0 0 0' }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
                       {formatCurrency(appt.final_price)}
                     </p>
+                    {['pending', 'confirmed', 'assigned'].includes(appt.status) && (
+                      <CancelAppointmentButton appointmentId={appt.id} />
+                    )}
                   </div>
                 </Link>
               )

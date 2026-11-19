@@ -8,9 +8,11 @@ const UpdateSchema = z.object({
 })
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
-  confirmed:   ['in_progress', 'cancelled'],
-  assigned:    ['in_progress', 'cancelled'],
-  in_progress: ['completed', 'cancelled'],
+  pending:         ['confirmed', 'cancelled'],
+  payment_pending: ['cancelled'],
+  confirmed:       ['in_progress', 'cancelled'],
+  assigned:        ['in_progress', 'cancelled'],
+  in_progress:     ['completed', 'cancelled'],
 }
 
 export async function PATCH(

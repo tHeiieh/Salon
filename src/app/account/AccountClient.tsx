@@ -37,6 +37,7 @@ export default function AccountClient() {
   const [focused, setFocused] = useState<string | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loadingAppts, setLoadingAppts] = useState(false)
+  const [cancellingId, setCancellingId] = useState<string | null>(null)
 
   const supabase = createClient()
 
@@ -100,6 +101,22 @@ export default function AccountClient() {
     setEmail('')
     setCode('')
     setAppointments([])
+  }
+
+  async function handleCancel(appointmentId: string) {
+    if (!confirm('هل أنت متأكدة من إلغاء هذا الموعد؟')) return
+    setCancellingId(appointmentId)
+    try {
+      const res = await fetch(`/api/appointments/${appointmentId}/cancel`, { method: 'POST' })
+      if (res.ok) {
+        setAppointments(prev => prev.map(a => a.id === appointmentId ? { ...a, status: 'cancelled' } : a))
+      } else {
+        const data = await res.json()
+        alert(data.error || 'تعذر الإلغاء')
+      }
+    } finally {
+      setCancellingId(null)
+    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -251,7 +268,25 @@ export default function AccountClient() {
                       </div>
                       <div style={{ borderTop: '1px solid #f5f5f5', marginTop: 12, paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: 12, color: '#9ca3af' }}>الإجمالي</span>
-                        <span style={{ fontWeight: 700, fontSize: 15, color: '#C2847A' }}>{formatCurrency(appt.final_price)}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {['pending', 'confirmed', 'payment_pending'].includes(appt.status) && (
+                            <button
+                              onClick={() => handleCancel(appt.id)}
+                              disabled={cancellingId === appt.id}
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: 4,
+                                padding: '4px 10px', borderRadius: 8, border: '1px solid #fecaca',
+                                backgroundColor: '#fff5f5', color: '#dc2626', fontSize: 12,
+                                cursor: cancellingId === appt.id ? 'not-allowed' : 'pointer',
+                                fontFamily: 'inherit', opacity: cancellingId === appt.id ? 0.6 : 1,
+                              }}
+                            >
+                              <XCircle size={12} />
+                              {cancellingId === appt.id ? 'جارٍ...' : 'إلغاء'}
+                            </button>
+                          )}
+                          <span style={{ fontWeight: 700, fontSize: 15, color: '#C2847A' }}>{formatCurrency(appt.final_price)}</span>
+                        </div>
                       </div>
                     </div>
                   )

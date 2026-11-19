@@ -18,12 +18,26 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await admin
     .from('user_profiles')
-    .select('*, tenants(*, tenant_profiles(*))')
+    .select('*, tenants(*)')
     .eq('id', user.id)
     .single()
 
   if (!profile || !['salon_owner', 'salon_staff'].includes(profile.role)) {
     redirect('/auth/login')
+  }
+
+  // Fetch tenant profile separately to avoid one-to-one join coercion issues
+  const { data: tenantProfiles } = await admin
+    .from('tenant_profiles')
+    .select('name_ar, logo_url')
+    .eq('tenant_id', profile.tenant_id)
+    .limit(1)
+
+  const profileWithTenantProfile = {
+    ...profile,
+    tenants: profile.tenants
+      ? { ...profile.tenants, tenant_profiles: tenantProfiles || [] }
+      : null,
   }
 
   return (
@@ -37,9 +51,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         fontFamily: 'var(--font-sans, system-ui)',
       }}
     >
-      <DashboardSidebar userProfile={profile} />
+      <DashboardSidebar userProfile={profileWithTenantProfile} />
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-        <DashboardHeader userProfile={profile} />
+        <DashboardHeader userProfile={profileWithTenantProfile} />
         <main
           style={{
             flex: 1,
