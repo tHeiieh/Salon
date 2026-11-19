@@ -1,7 +1,5 @@
 import { getAuthContext } from '@/lib/server/getAuthContext'
 import { formatCurrency } from '@/lib/utils'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Calendar, Users, TrendingUp, CheckCircle, AlertCircle, CreditCard } from 'lucide-react'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
@@ -111,10 +109,7 @@ export default async function DashboardPage() {
                   display: 'flex', alignItems: 'center', gap: 16,
                   padding: '14px 20px', textDecoration: 'none',
                   borderBottom: '1px solid #f9f9f9',
-                  transition: 'background-color 0.15s',
                 }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#fafafa')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = 'transparent')}
               >
                 <div style={{ minWidth: 48, textAlign: 'center' }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: '#C2847A', margin: 0 }}>
