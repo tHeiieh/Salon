@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { ArrowRight, X, Check } from 'lucide-react'
+import { ArrowRight, X, Check, Sparkles } from 'lucide-react'
 import { Step1Services } from './steps/Step1Services'
 import { Step2Address } from './steps/Step2Address'
 import { Step3DateTime } from './steps/Step3DateTime'
@@ -18,11 +18,11 @@ interface Props {
 }
 
 const STEPS = [
-  { id: 1, label: 'الخدمة' },
-  { id: 2, label: 'العنوان' },
-  { id: 3, label: 'الموعد' },
-  { id: 4, label: 'الدفع' },
-  { id: 5, label: 'تأكيد' },
+  { id: 1, label: 'الخدمة', emoji: '✨' },
+  { id: 2, label: 'العنوان', emoji: '📍' },
+  { id: 3, label: 'الموعد', emoji: '📅' },
+  { id: 4, label: 'الدفع', emoji: '💳' },
+  { id: 5, label: 'تأكيد', emoji: '✅' },
 ]
 
 export function BookingFlow({ tenant, initialServices, allCategories, employees, onClose }: Props) {
@@ -44,147 +44,215 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
   }, [step, onClose])
 
   const p = tenant.primary_color || '#C2847A'
+  const a = tenant.accent_color || '#D4A96A'
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#FAF8F5' }} dir="rtl">
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      background: 'linear-gradient(180deg, #0d0a06 0%, #110d07 100%)',
+    }} dir="rtl">
 
-      {/* HEADER */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: '#fff', boxShadow: '0 1px 12px rgba(0,0,0,0.06)' }}>
-        <div style={{ maxWidth: 672, margin: '0 auto', padding: '16px 16px 12px' }}>
+      {/* ── HEADER ── */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: 'rgba(10,8,4,0.85)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        <div style={{ maxWidth: 672, margin: '0 auto', padding: '14px 16px' }}>
 
-          {/* top row */}
+          {/* Top row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <button
               onClick={goBack}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: 13, fontWeight: 500, color: '#6b7280',
-                background: 'none', border: 'none', cursor: 'pointer',
-                padding: '6px 8px', borderRadius: 10,
+                fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 12, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'background 0.2s',
               }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
             >
-              <ArrowRight size={16} />
+              <ArrowRight size={14} />
               {step === 1 ? 'العودة' : 'السابق'}
             </button>
 
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: 11, color: '#6b7280', fontWeight: 500, margin: 0 }}>{tenant.name_ar}</p>
-              <p style={{ fontSize: 14, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>{STEPS[step - 1].label}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', marginBottom: 2 }}>
+                <Sparkles size={12} style={{ color: a }} />
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500, margin: 0 }}>
+                  {tenant.name_ar}
+                </p>
+              </div>
+              <p style={{ fontSize: 15, fontWeight: 800, color: '#fff', margin: 0 }}>
+                {STEPS[step - 1].emoji} {STEPS[step - 1].label}
+              </p>
             </div>
 
             <button
               onClick={onClose}
-              aria-label="إغلاق"
               style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: '#6b7280', padding: 8, borderRadius: 10,
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 12, padding: '7px', cursor: 'pointer',
+                color: 'rgba(255,255,255,0.5)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.2s',
               }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,100,100,0.15)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           </div>
 
           {/* Step progress */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {STEPS.map((s, i) => (
-              <div key={s.id} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                {/* bubble + label */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div
-                    style={{
-                      width: 32, height: 32, borderRadius: '50%',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, fontWeight: 800, border: '2px solid',
-                      transition: 'all 0.2s',
-                      ...(step > s.id
-                        ? { backgroundColor: '#22c55e', borderColor: '#22c55e', color: '#fff' }
-                        : step === s.id
-                        ? { backgroundColor: p, borderColor: p, color: '#fff', transform: 'scale(1.1)' }
-                        : { backgroundColor: '#fff', borderColor: '#e5e7eb', color: '#9ca3af' }),
-                    }}
-                  >
-                    {step > s.id ? <Check size={14} /> : s.id}
-                  </div>
-                  <span style={{
-                    fontSize: 10, marginTop: 4, fontWeight: 600,
-                    color: step === s.id ? '#1a1a1a' : '#9ca3af',
-                  }}>
-                    {s.label}
-                  </span>
-                </div>
-
-                {/* connector */}
-                {i < STEPS.length - 1 && (
-                  <div style={{
-                    flex: 1, margin: '0 4px 16px', height: 2,
-                    backgroundColor: '#e5e7eb', borderRadius: 2, overflow: 'hidden', position: 'relative',
-                  }}>
+            {STEPS.map((s, i) => {
+              const done = step > s.id
+              const active = step === s.id
+              return (
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{
-                      position: 'absolute', inset: 0, right: 0, borderRadius: 2,
-                      backgroundColor: step > s.id ? '#22c55e' : p,
-                      width: step > s.id ? '100%' : '0%',
-                      transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                    }} />
+                      width: 34, height: 34, borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 12, fontWeight: 800,
+                      transition: 'all 0.25s ease',
+                      ...(done ? {
+                        background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                        border: 'none', color: '#fff',
+                        boxShadow: '0 2px 10px rgba(34,197,94,0.4)',
+                      } : active ? {
+                        background: `linear-gradient(135deg, ${p}, ${a})`,
+                        border: 'none', color: '#fff',
+                        boxShadow: `0 2px 16px ${p}55`,
+                        transform: 'scale(1.1)',
+                      } : {
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: 'rgba(255,255,255,0.3)',
+                      }),
+                    }}>
+                      {done ? <Check size={14} /> : s.id}
+                    </div>
+                    <span style={{
+                      fontSize: 10, marginTop: 5, fontWeight: 600,
+                      color: active ? '#fff' : 'rgba(255,255,255,0.3)',
+                    }}>
+                      {s.label}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {i < STEPS.length - 1 && (
+                    <div style={{
+                      flex: 1, margin: '0 4px 16px', height: 2,
+                      background: 'rgba(255,255,255,0.08)',
+                      borderRadius: 2, overflow: 'hidden', position: 'relative',
+                    }}>
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        background: done ? 'linear-gradient(90deg, #22c55e, #16a34a)' : `linear-gradient(90deg, ${p}, ${a})`,
+                        width: done ? '100%' : '0%',
+                        transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                        borderRadius: 2,
+                      }} />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
 
-      {/* STEP CONTENT */}
-      <div className="page-enter" style={{ flex: 1, maxWidth: 672, margin: '0 auto', width: '100%', padding: '24px 16px' }}>
-        {step === 1 && (
-          <Step1Services
-            categories={allCategories}
-            state={bookingState}
-            updateState={updateState}
-            onNext={goNext}
-            primaryColor={p}
-          />
-        )}
-        {step === 2 && (
-          <Step2Address
-            tenant={tenant}
-            state={bookingState}
-            updateState={updateState}
-            onNext={goNext}
-            primaryColor={p}
-          />
-        )}
-        {step === 3 && (
-          <Step3DateTime
-            tenant={tenant}
-            state={bookingState}
-            updateState={updateState}
-            onNext={goNext}
-            employees={employees}
-            primaryColor={p}
-          />
-        )}
-        {step === 4 && (
-          <Step4Payment
-            tenant={tenant}
-            state={bookingState}
-            updateState={updateState}
-            onNext={(id) => { setBookingId(id); goNext() }}
-            primaryColor={p}
-          />
-        )}
-        {step === 5 && bookingId && (
-          <Step5Confirmation
-            bookingId={bookingId}
-            tenant={tenant}
-            state={bookingState}
-            primaryColor={p}
-            onNewBooking={() => {
-              setStep(1)
-              setBookingState({ tenantId: tenant.tenant_id, selectedServices: [] })
-            }}
-          />
-        )}
+      {/* ── STEP CONTENT ── */}
+      <div style={{
+        flex: 1, maxWidth: 672, margin: '0 auto', width: '100%',
+        padding: '28px 16px 40px',
+      }}>
+        {/* Glass card wrapper */}
+        <div style={{
+          background: 'rgba(255,255,255,0.04)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 28, padding: '24px',
+          minHeight: 300,
+        }}>
+          {step === 1 && (
+            <Step1Services
+              categories={allCategories}
+              state={bookingState}
+              updateState={updateState}
+              onNext={goNext}
+              primaryColor={p}
+            />
+          )}
+          {step === 2 && (
+            <Step2Address
+              tenant={tenant}
+              state={bookingState}
+              updateState={updateState}
+              onNext={goNext}
+              primaryColor={p}
+            />
+          )}
+          {step === 3 && (
+            <Step3DateTime
+              tenant={tenant}
+              state={bookingState}
+              updateState={updateState}
+              onNext={goNext}
+              employees={employees}
+              primaryColor={p}
+            />
+          )}
+          {step === 4 && (
+            <Step4Payment
+              tenant={tenant}
+              state={bookingState}
+              updateState={updateState}
+              onNext={(id) => { setBookingId(id); goNext() }}
+              primaryColor={p}
+            />
+          )}
+          {step === 5 && bookingId && (
+            <Step5Confirmation
+              bookingId={bookingId}
+              tenant={tenant}
+              state={bookingState}
+              primaryColor={p}
+              onNewBooking={() => {
+                setStep(1)
+                setBookingState({ tenantId: tenant.tenant_id, selectedServices: [] })
+              }}
+            />
+          )}
+        </div>
       </div>
+
+      <style>{`
+        * { box-sizing: border-box; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .page-enter { animation: fadeUp 0.3s ease both; }
+        input, select, textarea {
+          background: rgba(255,255,255,0.07) !important;
+          border: 1px solid rgba(255,255,255,0.12) !important;
+          color: #fff !important;
+          border-radius: 14px !important;
+          padding: 12px 16px !important;
+        }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3) !important; }
+        input:focus, textarea:focus {
+          outline: none !important;
+          border-color: rgba(194,132,122,0.5) !important;
+          background: rgba(255,255,255,0.09) !important;
+        }
+        label { color: rgba(255,255,255,0.65) !important; }
+      `}</style>
     </div>
   )
 }
