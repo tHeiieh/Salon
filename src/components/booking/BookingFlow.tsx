@@ -234,22 +234,25 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
 
       <style>{`
         * { box-sizing: border-box; }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-        .page-enter { animation: fadeUp 0.3s ease both; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .page-enter { animation: fadeUp 0.25s ease both; }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
         input, select, textarea {
-          background: rgba(255,255,255,0.07) !important;
-          border: 1px solid rgba(255,255,255,0.12) !important;
-          color: #fff !important;
-          border-radius: 14px !important;
-          padding: 12px 16px !important;
+          background: #faf8f5 !important;
+          border: 1px solid rgba(26,15,10,0.12) !important;
+          color: #1a0f0a !important;
+          border-radius: 10px !important;
+          padding: 11px 14px !important;
+          font-family: inherit !important;
+          font-size: 14px !important;
         }
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3) !important; }
-        input:focus, textarea:focus {
+        input::placeholder, textarea::placeholder { color: #a89080 !important; }
+        input:focus, select:focus, textarea:focus {
           outline: none !important;
           border-color: rgba(194,132,122,0.5) !important;
-          background: rgba(255,255,255,0.09) !important;
+          background: #fff !important;
         }
-        label { color: rgba(255,255,255,0.65) !important; }
+        label { color: #a89080 !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: 0.03em !important; }
       `}</style>
     </div>
   )

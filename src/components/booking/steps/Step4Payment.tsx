@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CreditCard, Banknote, Wallet, AlertCircle } from 'lucide-react'
+import { CreditCard, Banknote, Wallet, AlertCircle, Check } from 'lucide-react'
 import { formatCurrency, calculateVAT } from '@/lib/utils'
 import type { TenantProfile, BookingState, PaymentMethod } from '@/types'
 
@@ -28,17 +28,8 @@ const BASE_PAYMENT_METHODS = [
   },
 ]
 
-const inputStyle: React.CSSProperties = {
-  width: '100%', height: 44, borderRadius: 12, border: '1px solid #e5e7eb',
-  padding: '0 16px', fontSize: 14, backgroundColor: '#fff', outline: 'none',
-  boxSizing: 'border-box', color: '#1a1a1a',
-}
-
-const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 6,
-}
-
 export function Step4Payment({ tenant, state, updateState, onNext, primaryColor }: Props) {
+  const p = primaryColor
   const PAYMENT_METHODS = [
     ...BASE_PAYMENT_METHODS,
     ...(tenant.deposit_percentage > 0 ? [{
@@ -136,35 +127,50 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
     }
   }
 
+  const sectionStyle: React.CSSProperties = {
+    backgroundColor: '#faf8f5',
+    borderRadius: 4,
+    border: '1px solid rgba(26,15,10,0.08)',
+    padding: 18,
+  }
+
   return (
-    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Header */}
       <div>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>ملخص الطلب والدفع</h2>
-        <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>خطوة أخيرة وسيصلك موعدك</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 16, height: 1, background: p }} />
+          <span style={{ color: p, fontSize: 10, fontWeight: 800, letterSpacing: '0.15em' }}>STEP 4</span>
+        </div>
+        <h2 style={{ fontSize: 22, fontWeight: 900, color: '#1a0f0a', margin: 0, letterSpacing: '-0.02em' }}>ملخص الطلب والدفع</h2>
+        <p style={{ color: '#a89080', fontSize: 12, marginTop: 4, fontWeight: 600 }}>خطوة أخيرة وسيصلك موعدك</p>
       </div>
 
       {/* Customer Info */}
-      <div style={{ backgroundColor: '#fff', borderRadius: 20, border: '1px solid #f0f0f0', padding: 20 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: '0 0 16px' }}>بياناتك</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={sectionStyle}>
+        <p style={{ fontSize: 11, fontWeight: 800, color: '#a89080', margin: '0 0 12px', letterSpacing: '0.03em' }}>بياناتك</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div>
-            <label style={labelStyle}>الاسم الكامل</label>
+            <label>الاسم الكامل</label>
             <input
               value={customerName}
               onChange={e => setCustomerName(e.target.value)}
               placeholder="اسمك الكريم"
-              style={inputStyle}
+              style={{ width: '100%', boxSizing: 'border-box' as const, marginTop: 4 }}
             />
           </div>
           <div>
-            <label style={labelStyle}>رقم الجوال</label>
+            <label>رقم الجوال</label>
             <input
               value={customerPhone}
               onChange={e => setCustomerPhone(e.target.value)}
               placeholder="05xxxxxxxx"
               type="tel"
               dir="ltr"
-              style={{ ...inputStyle, borderColor: phoneError ? '#fca5a5' : '#e5e7eb' }}
+              style={{
+                width: '100%', boxSizing: 'border-box' as const, marginTop: 4,
+                borderColor: phoneError ? '#fca5a5' : undefined,
+              }}
             />
             {phoneError && <p style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{phoneError}</p>}
           </div>
@@ -172,105 +178,115 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
       </div>
 
       {/* Order Summary */}
-      <div style={{ backgroundColor: '#fff', borderRadius: 20, border: '1px solid #f0f0f0', padding: 20 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: '0 0 16px' }}>ملخص الخدمات</h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={sectionStyle}>
+        <p style={{ fontSize: 11, fontWeight: 800, color: '#a89080', margin: '0 0 12px', letterSpacing: '0.03em' }}>ملخص الخدمات</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {state.selectedServices.map(s => (
             <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
-              <span style={{ color: '#1a1a1a' }}>{s.name_ar}</span>
-              <span style={{ fontWeight: 500 }}>{formatCurrency(s.price)}</span>
+              <span style={{ color: '#1a0f0a', fontWeight: 600 }}>{s.name_ar}</span>
+              <span style={{ fontWeight: 700, color: '#6b5040' }}>{formatCurrency(s.price)}</span>
             </div>
           ))}
           {travelFee > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#6b7280', borderTop: '1px solid #f0f0f0', paddingTop: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#a89080', borderTop: '1px solid rgba(26,15,10,0.06)', paddingTop: 10 }}>
               <span>رسوم الزيارة المنزلية</span>
               <span>{formatCurrency(travelFee)}</span>
             </div>
           )}
           {discount > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#16a34a' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#16a34a' }}>
               <span>خصم الكوبون</span>
-              <span>-{formatCurrency(discount)}</span>
+              <span>−{formatCurrency(discount)}</span>
             </div>
           )}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#6b7280', borderTop: '1px solid #f0f0f0', paddingTop: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#a89080', borderTop: '1px solid rgba(26,15,10,0.06)', paddingTop: 10 }}>
             <span>ضريبة القيمة المضافة (15%)</span>
             <span>{formatCurrency(vat)}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 17, fontWeight: 700, borderTop: '2px solid #f0f0f0', paddingTop: 12, color: primaryColor }}>
-            <span>الإجمالي</span>
-            <span>{formatCurrency(total)}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(26,15,10,0.1)', paddingTop: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#6b5040' }}>الإجمالي</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: '#1a0f0a', letterSpacing: '-0.02em' }}>{formatCurrency(total)}</span>
           </div>
         </div>
       </div>
 
       {/* Coupon */}
-      {!couponApplied && (
+      {!couponApplied ? (
         <div style={{ display: 'flex', gap: 8 }}>
           <div style={{ flex: 1 }}>
             <input
               value={couponCode}
               onChange={e => setCouponCode(e.target.value.toUpperCase())}
               placeholder="كود الخصم"
-              style={{ ...inputStyle, borderColor: couponError ? '#fca5a5' : '#e5e7eb' }}
+              style={{ width: '100%', boxSizing: 'border-box' as const }}
             />
             {couponError && <p style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{couponError}</p>}
           </div>
           <button
             onClick={applyCoupon}
             style={{
-              flexShrink: 0, padding: '0 16px', borderRadius: 12, border: '1px solid #e5e7eb',
-              backgroundColor: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', color: '#374151',
+              flexShrink: 0, padding: '0 16px', borderRadius: 999,
+              border: '1px solid rgba(26,15,10,0.12)', backgroundColor: '#fff',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer', color: '#1a0f0a', fontFamily: 'inherit',
             }}
           >
             تطبيق
           </button>
         </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', backgroundColor: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+          <Check size={14} style={{ color: '#16a34a' }} />
+          <span style={{ fontSize: 13, color: '#15803d', fontWeight: 700 }}>تم تطبيق كود الخصم</span>
+        </div>
       )}
 
       {/* Payment Methods */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: 0 }}>طريقة الدفع</h3>
-        {PAYMENT_METHODS.map(method => (
-          <button
-            key={method.id}
-            onClick={() => setSelectedMethod(method.id)}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 16,
-              padding: 16, borderRadius: 20, border: '2px solid', cursor: 'pointer',
-              textAlign: 'right', background: 'none', transition: 'all 0.15s',
-              ...(selectedMethod === method.id
-                ? { borderColor: primaryColor, backgroundColor: `${primaryColor}08` }
-                : { borderColor: '#e5e7eb', backgroundColor: '#fff' }),
-            }}
-          >
-            <div style={{
-              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              ...(selectedMethod === method.id
-                ? { backgroundColor: primaryColor, color: '#fff' }
-                : { backgroundColor: '#f5f5f5', color: '#6b7280' }),
-            }}>
-              {method.icon}
-            </div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontWeight: 500, fontSize: 14, color: '#1a1a1a', margin: 0 }}>{method.label}</p>
-              <p style={{ fontSize: 11, color: '#6b7280', margin: 0 }}>{method.description}</p>
-            </div>
-            <div style={{
-              width: 20, height: 20, borderRadius: '50%', border: '2px solid', flexShrink: 0,
-              ...(selectedMethod === method.id
-                ? { borderColor: primaryColor, backgroundColor: primaryColor }
-                : { borderColor: '#e5e7eb', backgroundColor: 'transparent' }),
-            }} />
-          </button>
-        ))}
+      <div>
+        <p style={{ fontSize: 11, fontWeight: 800, color: '#a89080', margin: '0 0 10px', letterSpacing: '0.03em' }}>طريقة الدفع</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {PAYMENT_METHODS.map(method => {
+            const isActive = selectedMethod === method.id
+            return (
+              <button
+                key={method.id}
+                onClick={() => setSelectedMethod(method.id)}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 16px', borderRadius: 4, border: 'none', cursor: 'pointer',
+                  textAlign: 'right', fontFamily: 'inherit',
+                  backgroundColor: isActive ? '#1a0f0a' : '#faf8f5',
+                }}
+              >
+                <div style={{
+                  width: 38, height: 38, borderRadius: 8, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: isActive ? 'rgba(255,255,255,0.12)' : 'rgba(26,15,10,0.06)',
+                  color: isActive ? '#fff' : '#6b5040',
+                }}>
+                  {method.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 700, fontSize: 13, color: isActive ? '#fff' : '#1a0f0a', margin: 0 }}>{method.label}</p>
+                  <p style={{ fontSize: 11, color: isActive ? 'rgba(255,255,255,0.5)' : '#a89080', margin: 0 }}>{method.description}</p>
+                </div>
+                <div style={{
+                  width: 18, height: 18, borderRadius: '50%', border: '2px solid', flexShrink: 0,
+                  backgroundColor: isActive ? p : 'transparent',
+                  borderColor: isActive ? p : 'rgba(26,15,10,0.2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {isActive && <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#fff' }} />}
+                </div>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Error */}
       {error && (
-        <div style={{ padding: 16, backgroundColor: '#fef2f2', borderRadius: 12, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <AlertCircle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: 2 }} />
+        <div style={{ padding: 14, backgroundColor: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <AlertCircle size={16} style={{ color: '#ef4444', flexShrink: 0, marginTop: 1 }} />
           <p style={{ fontSize: 13, color: '#b91c1c', margin: 0 }}>{error}</p>
         </div>
       )}
@@ -279,16 +295,18 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
         onClick={handleBooking}
         disabled={!customerName.trim() || loading}
         style={{
-          width: '100%', height: 48, borderRadius: 12, border: 'none',
-          backgroundColor: !customerName.trim() || loading ? '#d1d5db' : primaryColor,
-          color: '#fff', fontSize: 15, fontWeight: 600,
+          width: '100%', height: 50, borderRadius: 999, border: 'none',
+          backgroundColor: !customerName.trim() || loading ? 'rgba(26,15,10,0.1)' : '#1a0f0a',
+          color: !customerName.trim() || loading ? '#a89080' : '#fff',
+          fontSize: 14, fontWeight: 800,
           cursor: !customerName.trim() || loading ? 'not-allowed' : 'pointer',
+          fontFamily: 'inherit', letterSpacing: '0.02em',
         }}
       >
         {loading ? 'جاري الحجز...' : selectedMethod === 'online' ? `ادفعي ${formatCurrency(total)}` : 'تأكيد الحجز'}
       </button>
 
-      <p style={{ fontSize: 11, textAlign: 'center', color: '#9ca3af' }}>
+      <p style={{ fontSize: 11, textAlign: 'center', color: '#a89080', margin: 0, fontWeight: 600 }}>
         بالضغط أنتِ توافقين على شروط الحجز وسياسة الإلغاء
       </p>
     </div>

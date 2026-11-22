@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Check, Clock, ShoppingBag, Plus } from 'lucide-react'
+import { Check, Clock, ArrowLeft } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { ServiceCategory, Service, BookingState } from '@/types'
 
@@ -15,7 +15,8 @@ interface Props {
 }
 
 export function Step1Services({ categories, state, updateState, onNext, primaryColor }: Props) {
-  const [activeCat, setActiveCat] = useState<string | null>(categories[0]?.id || null)
+  const [activeCat, setActiveCat] = useState<string | null>(null)
+  const p = primaryColor
 
   const selectedIds = new Set(state.selectedServices.map(s => s.id))
 
@@ -35,139 +36,166 @@ export function Step1Services({ categories, state, updateState, onNext, primaryC
     : categories.flatMap(c => c.services?.filter(s => s.is_active) || [])
 
   return (
-    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Header */}
       <div>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#1a1a1a', margin: 0 }}>اختاري الخدمة</h2>
-        <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>يمكنك اختيار أكثر من خدمة</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 16, height: 1, background: p }} />
+          <span style={{ color: p, fontSize: 10, fontWeight: 800, letterSpacing: '0.15em' }}>STEP 1</span>
+        </div>
+        <h2 style={{ fontSize: 22, fontWeight: 900, color: '#1a0f0a', margin: 0, letterSpacing: '-0.02em' }}>اختاري الخدمة</h2>
+        <p style={{ color: '#a89080', fontSize: 12, marginTop: 4, fontWeight: 600 }}>يمكنك اختيار أكثر من خدمة</p>
       </div>
 
       {/* Category Tabs */}
-      <div className="custom-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
-        <button
-          onClick={() => setActiveCat(null)}
-          style={{
-            flexShrink: 0, padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
-            border: 'none', cursor: 'pointer', transition: 'all 0.15s',
-            ...(activeCat === null
-              ? { backgroundColor: primaryColor, color: '#fff' }
-              : { backgroundColor: '#f5f5f5', color: '#6b7280' }),
-          }}
-        >
-          الكل
-        </button>
-        {categories.map(cat => (
+      {categories.length > 0 && (
+        <div className="custom-scrollbar" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
           <button
-            key={cat.id}
-            onClick={() => setActiveCat(cat.id)}
+            onClick={() => setActiveCat(null)}
             style={{
-              flexShrink: 0, padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
-              border: 'none', cursor: 'pointer', transition: 'all 0.15s',
-              ...(activeCat === cat.id
-                ? { backgroundColor: primaryColor, color: '#fff' }
-                : { backgroundColor: '#f5f5f5', color: '#6b7280' }),
+              flexShrink: 0, padding: '7px 16px', borderRadius: 999, fontSize: 12, fontWeight: 700,
+              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              backgroundColor: activeCat === null ? '#1a0f0a' : 'transparent',
+              color: activeCat === null ? '#fff' : '#6b5040',
+              outline: activeCat === null ? 'none' : '1px solid rgba(26,15,10,0.15)',
             }}
           >
-            {cat.icon && <span style={{ marginLeft: 4 }}>{cat.icon}</span>}
-            {cat.name_ar}
+            الكل
           </button>
-        ))}
-      </div>
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCat(cat.id)}
+              style={{
+                flexShrink: 0, padding: '7px 16px', borderRadius: 999, fontSize: 12, fontWeight: 700,
+                border: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                backgroundColor: activeCat === cat.id ? '#1a0f0a' : 'transparent',
+                color: activeCat === cat.id ? '#fff' : '#6b5040',
+                outline: activeCat === cat.id ? 'none' : '1px solid rgba(26,15,10,0.15)',
+              }}
+            >
+              {cat.icon && <span style={{ marginLeft: 4 }}>{cat.icon}</span>}
+              {cat.name_ar}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Services list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {activeServices.map(service => {
+      {/* Services list — editorial row style */}
+      <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid rgba(26,15,10,0.08)', borderRadius: 4, overflow: 'hidden' }}>
+        {activeServices.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 0', color: '#a89080' }}>
+            <p style={{ margin: 0, fontSize: 13 }}>لا توجد خدمات في هذه الفئة</p>
+          </div>
+        ) : activeServices.map((service, i) => {
           const isSelected = selectedIds.has(service.id)
           return (
             <button
               key={service.id}
               onClick={() => toggleService(service)}
               style={{
-                width: '100%', textAlign: 'right', display: 'flex', alignItems: 'center', gap: 16,
-                padding: 16, borderRadius: 20, border: '2px solid', cursor: 'pointer',
-                transition: 'all 0.2s', background: 'none',
-                ...(isSelected
-                  ? { borderColor: primaryColor, backgroundColor: `${primaryColor}08` }
-                  : { borderColor: '#e5e7eb', backgroundColor: '#fff' }),
+                width: '100%', textAlign: 'right', display: 'flex', alignItems: 'center', gap: 14,
+                padding: '14px 16px', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                borderBottom: i < activeServices.length - 1 ? '1px solid rgba(26,15,10,0.06)' : 'none',
+                backgroundColor: isSelected ? `${p}08` : '#fff',
+                transition: 'background 0.15s',
               }}
+              onMouseEnter={e => { if (!isSelected) e.currentTarget.style.backgroundColor = '#faf8f5' }}
+              onMouseLeave={e => { if (!isSelected) e.currentTarget.style.backgroundColor = '#fff' }}
             >
-              {service.image_url && (
-                <div style={{ position: 'relative', width: 64, height: 64, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
+              {/* Image or gradient tile */}
+              {service.image_url ? (
+                <div style={{ position: 'relative', width: 56, height: 56, borderRadius: 4, overflow: 'hidden', flexShrink: 0 }}>
                   <Image src={service.image_url} alt={service.name_ar} fill style={{ objectFit: 'cover' }} />
                 </div>
+              ) : (
+                <div style={{
+                  flexShrink: 0, width: 56, height: 56, borderRadius: 4,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: `linear-gradient(145deg, ${p}18, ${p}30)`,
+                  fontSize: 22,
+                }}>
+                  ✨
+                </div>
               )}
+
+              {/* Text */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{ fontWeight: 600, fontSize: 15, color: '#1a1a1a', margin: 0 }}>{service.name_ar}</h3>
+                <h3 style={{ fontWeight: 800, fontSize: 14, color: '#1a0f0a', margin: '0 0 3px', lineHeight: 1.3 }}>
+                  {service.name_ar}
+                </h3>
                 {service.description_ar && (
-                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ fontSize: 11, color: '#a89080', margin: '0 0 5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
                     {service.description_ar}
                   </p>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-                  <span style={{ fontWeight: 700, fontSize: 13, color: primaryColor }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 15, fontWeight: 900, color: '#1a0f0a' }}>
                     {formatCurrency(service.price)}
                   </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#6b7280' }}>
-                    <Clock size={11} />
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: '#a89080', fontWeight: 600 }}>
+                    <Clock size={10} />
                     {service.duration_minutes} د
                   </span>
                 </div>
               </div>
+
+              {/* Selection indicator */}
               <div style={{
-                width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid',
-                transition: 'all 0.2s',
-                ...(isSelected
-                  ? { backgroundColor: primaryColor, borderColor: primaryColor, color: '#fff' }
-                  : { backgroundColor: 'transparent', borderColor: '#e5e7eb' }),
+                width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s',
+                backgroundColor: isSelected ? '#1a0f0a' : 'transparent',
+                border: isSelected ? 'none' : '1.5px solid rgba(26,15,10,0.2)',
               }}>
-                {isSelected ? <Check size={14} /> : <Plus size={14} style={{ color: '#9ca3af' }} />}
+                {isSelected
+                  ? <Check size={13} color="#fff" />
+                  : <span style={{ fontSize: 16, color: 'rgba(26,15,10,0.2)', lineHeight: 1 }}>+</span>
+                }
               </div>
             </button>
           )
         })}
       </div>
 
-      {/* Bottom Cart */}
+      {/* Sticky bottom summary */}
       {state.selectedServices.length > 0 && (
         <div style={{
-          position: 'sticky', bottom: 24, backgroundColor: '#fff',
-          borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-          border: `1px solid ${primaryColor}30`,
-          padding: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+          position: 'sticky', bottom: 0,
+          backgroundColor: '#fff',
+          border: '1px solid rgba(26,15,10,0.1)',
+          borderRadius: 4,
+          padding: '14px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          boxShadow: '0 -4px 24px rgba(26,15,10,0.08)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 12,
-              backgroundColor: primaryColor, color: '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <ShoppingBag size={18} />
-            </div>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>{state.selectedServices.length} خدمة</p>
-              <p style={{ fontSize: 11, color: '#6b7280', margin: 0 }}>
-                {totalDuration} دقيقة • {formatCurrency(totalPrice)}
-              </p>
-            </div>
+          <div>
+            <p style={{ fontSize: 11, color: '#a89080', fontWeight: 700, margin: 0, letterSpacing: '0.03em' }}>
+              {state.selectedServices.length} خدمة · {totalDuration} دقيقة
+            </p>
+            <p style={{ fontSize: 18, fontWeight: 900, color: '#1a0f0a', margin: '2px 0 0', letterSpacing: '-0.02em' }}>
+              {formatCurrency(totalPrice)}
+            </p>
           </div>
           <button
             onClick={onNext}
             style={{
-              backgroundColor: primaryColor, color: '#fff', border: 'none',
-              borderRadius: 12, padding: '10px 24px', fontSize: 14, fontWeight: 600,
-              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 8,
+              backgroundColor: '#1a0f0a', color: '#fff', border: 'none',
+              borderRadius: 999, padding: '12px 24px', fontSize: 13, fontWeight: 800,
+              cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.02em',
             }}
           >
             التالي
+            <ArrowLeft size={14} />
           </button>
         </div>
       )}
 
       {state.selectedServices.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '32px 0', color: '#9ca3af' }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>✨</div>
-          <p style={{ margin: 0, fontSize: 14 }}>اختاري الخدمات التي تريدينها</p>
-        </div>
+        <p style={{ textAlign: 'center', color: '#a89080', fontSize: 12, fontWeight: 600, margin: 0 }}>
+          اختاري خدمة أو أكثر للمتابعة
+        </p>
       )}
     </div>
   )
