@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Calendar, Scissors, Users, UserCheck,
   CreditCard, BarChart2, Settings, Palette, Menu, ChevronLeft,
-  LogOut, X, Sparkles,
+  LogOut, X, Sparkles, ShoppingCart, Receipt, Package,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -16,7 +16,10 @@ const NAV_ITEMS = [
   { href: '/dashboard/services', icon: Scissors, label: 'الخدمات' },
   { href: '/dashboard/employees', icon: UserCheck, label: 'الموظفات' },
   { href: '/dashboard/customers', icon: Users, label: 'العملاء' },
+  { href: '/dashboard/cashier', icon: ShoppingCart, label: 'الكاشير' },
   { href: '/dashboard/payments', icon: CreditCard, label: 'المدفوعات' },
+  { href: '/dashboard/expenses', icon: Receipt, label: 'المصروفات' },
+  { href: '/dashboard/stock', icon: Package, label: 'المخزون' },
   { href: '/dashboard/reports', icon: BarChart2, label: 'التقارير' },
   { href: '/dashboard/branding', icon: Palette, label: 'العلامة التجارية' },
   { href: '/dashboard/settings', icon: Settings, label: 'الإعدادات' },
