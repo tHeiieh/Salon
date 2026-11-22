@@ -15,14 +15,13 @@ export function DashboardHeader({ userProfile, onMenuClick }: Props) {
   return (
     <header style={{
       height: 64,
-      backgroundColor: '#fff',
-      borderBottom: '1px solid #f0ece6',
+      backgroundColor: '#faf8f5',
+      borderBottom: '1px solid rgba(26,15,10,0.08)',
       padding: '0 24px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       flexShrink: 0,
-      boxShadow: '0 1px 8px rgba(0,0,0,0.04)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {/* Mobile hamburger */}

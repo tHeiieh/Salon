@@ -47,7 +47,7 @@ export function DashboardShell({ userProfile, children }: Props) {
           display: none;
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.6);
+          background: rgba(26,15,10,0.35);
           backdrop-filter: blur(4px);
           z-index: 39;
           cursor: pointer;
@@ -58,7 +58,7 @@ export function DashboardShell({ userProfile, children }: Props) {
           flex: 1;
           overflow: hidden;
           min-width: 0;
-          background: #f8f6f2;
+          background: #faf8f5;
         }
         .dash-main {
           flex: 1;
@@ -67,7 +67,7 @@ export function DashboardShell({ userProfile, children }: Props) {
         }
         .dash-main::-webkit-scrollbar { width: 5px; }
         .dash-main::-webkit-scrollbar-track { background: transparent; }
-        .dash-main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        .dash-main::-webkit-scrollbar-thumb { background: rgba(26,15,10,0.12); border-radius: 3px; }
         @media (max-width: 768px) {
           .dash-backdrop[data-open="true"] { display: block; }
           .dash-main { padding: 16px; }

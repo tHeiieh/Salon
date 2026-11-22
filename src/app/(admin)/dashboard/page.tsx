@@ -40,54 +40,59 @@ export default async function DashboardPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>لوحة التحكم</h1>
-        <p style={{ fontSize: 13, color: '#888', marginTop: 4, margin: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <div style={{ width: 20, height: 1, background: '#C2847A' }} />
+          <span style={{ color: '#C2847A', fontSize: 10, fontWeight: 800, letterSpacing: '0.15em' }}>DASHBOARD</span>
+        </div>
+        <h1 style={{ fontSize: 28, fontWeight: 900, color: '#1a0f0a', margin: 0, letterSpacing: '-0.02em' }}>لوحة التحكم</h1>
+        <p style={{ fontSize: 12, color: '#a89080', marginTop: 4, margin: 0, fontWeight: 600 }}>
           {format(new Date(), 'PPP', { locale: ar })}
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, border: '1px solid rgba(26,15,10,0.08)', borderRadius: 4, overflow: 'hidden' }}>
         {stats.map((stat, i) => (
           <div
             key={i}
             style={{
-              backgroundColor: '#fff', borderRadius: 12,
-              border: '1px solid #f0f0f0', padding: 20,
+              backgroundColor: '#fff', padding: 20,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              borderLeft: i % 3 !== 2 ? '1px solid rgba(26,15,10,0.06)' : 'none',
+              borderBottom: i < 3 ? '1px solid rgba(26,15,10,0.06)' : 'none',
             }}
           >
             <div>
-              <p style={{ fontSize: 13, color: '#888', margin: 0 }}>{stat.label}</p>
-              <p style={{ fontSize: 22, fontWeight: 700, color: stat.color, margin: '4px 0 0 0' }}>
+              <p style={{ fontSize: 11, color: '#a89080', margin: 0, fontWeight: 700, letterSpacing: '0.03em' }}>{stat.label}</p>
+              <p style={{ fontSize: 24, fontWeight: 900, color: '#1a0f0a', margin: '6px 0 0 0', letterSpacing: '-0.02em' }}>
                 {stat.value}
               </p>
             </div>
             <div style={{
-              width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+              width: 40, height: 40, borderRadius: 999, flexShrink: 0,
               backgroundColor: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <stat.icon size={20} style={{ color: stat.color }} />
+              <stat.icon size={18} style={{ color: stat.color }} />
             </div>
           </div>
         ))}
       </div>
 
       {/* Today's Appointments */}
-      <div style={{ backgroundColor: '#fff', borderRadius: 12, border: '1px solid #f0f0f0', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: '#fff', border: '1px solid rgba(26,15,10,0.08)', borderRadius: 4, overflow: 'hidden' }}>
         <div style={{
-          padding: '16px 20px', borderBottom: '1px solid #f5f5f5',
+          padding: '16px 20px', borderBottom: '1px solid rgba(26,15,10,0.06)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>مواعيد اليوم</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 800, color: '#1a0f0a', margin: 0, letterSpacing: '-0.01em' }}>مواعيد اليوم</h2>
           <Link href="/dashboard/appointments" style={{ fontSize: 13, color: '#C2847A', textDecoration: 'none' }}>
             عرض الكل
           </Link>
         </div>
         {!todayAppts?.length ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: '#aaa' }}>
-            <Calendar size={36} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
-            <p style={{ margin: 0 }}>لا توجد مواعيد اليوم</p>
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Calendar size={32} style={{ margin: '0 auto 8px', color: '#C2847A', opacity: 0.3 }} />
+            <p style={{ margin: 0, color: '#a89080', fontSize: 13, fontWeight: 600 }}>لا توجد مواعيد اليوم</p>
           </div>
         ) : (
           <div>
@@ -108,7 +113,7 @@ export default async function DashboardPage() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 16,
                   padding: '14px 20px', textDecoration: 'none',
-                  borderBottom: '1px solid #f9f9f9',
+                  borderBottom: '1px solid rgba(26,15,10,0.05)',
                 }}
               >
                 <div style={{ minWidth: 48, textAlign: 'center' }}>

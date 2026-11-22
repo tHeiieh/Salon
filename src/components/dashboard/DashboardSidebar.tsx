@@ -57,8 +57,8 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
           width: sidebarWidth,
           minWidth: sidebarWidth,
           height: '100vh',
-          background: 'linear-gradient(180deg, #0f0c08 0%, #130f0a 60%, #0f0c08 100%)',
-          borderLeft: '1px solid rgba(255,255,255,0.06)',
+          background: '#faf8f5',
+          borderLeft: '1px solid rgba(26,15,10,0.08)',
           display: 'flex',
           flexDirection: 'column',
           transition: 'width 0.25s ease, min-width 0.25s ease, transform 0.3s ease',
@@ -75,39 +75,39 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
           alignItems: 'center',
           justifyContent: collapsed ? 'center' : 'space-between',
           padding: collapsed ? '0 10px' : '0 16px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(26,15,10,0.08)',
           flexShrink: 0,
         }}>
           {!collapsed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden', flex: 1 }}>
               <div style={{
-                width: 36, height: 36, borderRadius: 12, flexShrink: 0,
+                width: 34, height: 34, borderRadius: 10, flexShrink: 0,
                 background: 'linear-gradient(135deg, #C2847A 0%, #D4A96A 100%)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 12px rgba(194,132,122,0.4)',
               }}>
-                <Sparkles size={16} color="white" />
+                <Sparkles size={15} color="white" />
               </div>
               <div style={{ overflow: 'hidden' }}>
                 <span style={{
-                  fontWeight: 700, fontSize: 14, color: '#fff',
+                  fontWeight: 800, fontSize: 14, color: '#1a0f0a',
                   whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                  display: 'block',
+                  display: 'block', letterSpacing: '-0.01em',
                 }}>
                   {tenantProfile?.name_ar || 'لوحة التحكم'}
                 </span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', display: 'block' }}>إدارة الصالون</span>
+                <span style={{ fontSize: 10, color: '#a89080', display: 'block', fontWeight: 600, letterSpacing: '0.03em' }}>
+                  BEAUTY SALON
+                </span>
               </div>
             </div>
           )}
           {collapsed && (
             <div style={{
-              width: 36, height: 36, borderRadius: 12,
+              width: 34, height: 34, borderRadius: 10,
               background: 'linear-gradient(135deg, #C2847A 0%, #D4A96A 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 12px rgba(194,132,122,0.3)',
             }}>
-              <Sparkles size={16} color="white" />
+              <Sparkles size={15} color="white" />
             </div>
           )}
 
@@ -116,16 +116,16 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
             onClick={() => { setCollapsed(!collapsed); onClose?.() }}
             className="dash-sidebar-close-btn"
             style={{
-              width: 30, height: 30, borderRadius: 8, border: 'none',
-              backgroundColor: 'rgba(255,255,255,0.07)', cursor: 'pointer',
+              width: 28, height: 28, borderRadius: 999, border: 'none',
+              backgroundColor: 'rgba(26,15,10,0.05)', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'rgba(255,255,255,0.4)', flexShrink: 0,
+              color: '#a89080', flexShrink: 0,
               transition: 'background-color 0.15s, color 0.15s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#fff' }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(26,15,10,0.09)'; e.currentTarget.style.color = '#1a0f0a' }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(26,15,10,0.05)'; e.currentTarget.style.color = '#a89080' }}
           >
-            {collapsed ? <ChevronLeft size={15} style={{ transform: 'scaleX(-1)' }} /> : <Menu size={15} />}
+            {collapsed ? <ChevronLeft size={14} style={{ transform: 'scaleX(-1)' }} /> : <Menu size={14} />}
           </button>
 
           {/* Mobile X close */}
@@ -133,13 +133,13 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
             onClick={onClose}
             className="dash-sidebar-mobile-close"
             style={{
-              width: 30, height: 30, borderRadius: 8, border: 'none',
-              backgroundColor: 'rgba(255,255,255,0.07)', cursor: 'pointer',
+              width: 28, height: 28, borderRadius: 999, border: 'none',
+              backgroundColor: 'rgba(26,15,10,0.05)', cursor: 'pointer',
               display: 'none', alignItems: 'center', justifyContent: 'center',
-              color: 'rgba(255,255,255,0.4)', flexShrink: 0, marginRight: 6,
+              color: '#a89080', flexShrink: 0, marginRight: 6,
             }}
           >
-            <X size={15} />
+            <X size={14} />
           </button>
         </div>
 
@@ -161,34 +161,32 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
                   gap: 10,
                   padding: collapsed ? '10px 0' : '10px 12px',
                   justifyContent: collapsed ? 'center' : 'flex-start',
-                  borderRadius: 12,
+                  borderRadius: 999,
                   marginBottom: 2,
                   textDecoration: 'none',
-                  background: isActive
-                    ? 'linear-gradient(135deg, rgba(194,132,122,0.2), rgba(212,169,106,0.12))'
-                    : 'transparent',
-                  color: isActive ? '#C2847A' : 'rgba(255,255,255,0.45)',
-                  fontWeight: isActive ? 600 : 400,
+                  background: isActive ? 'rgba(194,132,122,0.1)' : 'transparent',
+                  color: isActive ? '#C2847A' : '#6b5040',
+                  fontWeight: isActive ? 700 : 500,
                   fontSize: 13,
                   transition: 'all 0.15s ease',
-                  borderLeft: isActive ? '2px solid #C2847A' : '2px solid transparent',
+                  letterSpacing: isActive ? '0.01em' : '0',
                 }}
                 onMouseEnter={e => {
                   if (!isActive) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-                    e.currentTarget.style.color = 'rgba(255,255,255,0.75)'
+                    e.currentTarget.style.background = 'rgba(26,15,10,0.05)'
+                    e.currentTarget.style.color = '#1a0f0a'
                   }
                 }}
                 onMouseLeave={e => {
                   if (!isActive) {
                     e.currentTarget.style.background = 'transparent'
-                    e.currentTarget.style.color = 'rgba(255,255,255,0.45)'
+                    e.currentTarget.style.color = '#6b5040'
                   }
                 }}
               >
                 <item.icon
-                  size={19}
-                  style={{ flexShrink: 0, color: isActive ? '#C2847A' : 'rgba(255,255,255,0.3)' }}
+                  size={18}
+                  style={{ flexShrink: 0, color: isActive ? '#C2847A' : '#a89080' }}
                 />
                 {!collapsed && (
                   <span style={{ whiteSpace: 'nowrap', flex: 1 }}>{item.label}</span>
@@ -197,7 +195,6 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
                   <div style={{
                     width: 5, height: 5, borderRadius: '50%',
                     backgroundColor: '#C2847A', flexShrink: 0,
-                    boxShadow: '0 0 6px rgba(194,132,122,0.6)',
                   }} />
                 )}
               </Link>
@@ -206,28 +203,28 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
         </nav>
 
         {/* Sign out */}
-        <div style={{ padding: '8px 8px 12px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+        <div style={{ padding: '8px 8px 12px', borderTop: '1px solid rgba(26,15,10,0.08)', flexShrink: 0 }}>
           <button
             onClick={handleSignOut}
             style={{
               display: 'flex', alignItems: 'center', gap: 10,
               padding: collapsed ? '10px 0' : '10px 12px',
               justifyContent: collapsed ? 'center' : 'flex-start',
-              borderRadius: 12, width: '100%', border: 'none',
+              borderRadius: 999, width: '100%', border: 'none',
               backgroundColor: 'transparent', cursor: 'pointer',
-              color: 'rgba(255,255,255,0.3)', fontSize: 13, fontFamily: 'inherit',
+              color: '#a89080', fontSize: 13, fontFamily: 'inherit', fontWeight: 500,
               transition: 'all 0.15s ease',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.1)'
-              e.currentTarget.style.color = '#ef4444'
+              e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.07)'
+              e.currentTarget.style.color = '#dc2626'
             }}
             onMouseLeave={e => {
               e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = 'rgba(255,255,255,0.3)'
+              e.currentTarget.style.color = '#a89080'
             }}
           >
-            <LogOut size={19} style={{ flexShrink: 0 }} />
+            <LogOut size={18} style={{ flexShrink: 0 }} />
             {!collapsed && <span>تسجيل الخروج</span>}
           </button>
         </div>
@@ -243,7 +240,7 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
             min-width: 260px !important;
             z-index: 40;
             transform: translateX(100%);
-            box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+            box-shadow: -4px 0 24px rgba(26,15,10,0.1);
           }
           .dash-sidebar[data-mobile-open="true"] {
             transform: translateX(0);
@@ -253,7 +250,7 @@ export function DashboardSidebar({ userProfile, mobileOpen, onClose }: Props) {
         }
         nav::-webkit-scrollbar { width: 3px; }
         nav::-webkit-scrollbar-track { background: transparent; }
-        nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        nav::-webkit-scrollbar-thumb { background: rgba(26,15,10,0.1); border-radius: 2px; }
       `}</style>
     </>
   )
