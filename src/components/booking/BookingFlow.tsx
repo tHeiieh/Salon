@@ -49,15 +49,15 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: 'linear-gradient(180deg, #0d0a06 0%, #110d07 100%)',
+      background: '#faf8f5',
     }} dir="rtl">
 
       {/* ── HEADER ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(10,8,4,0.85)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(250,248,245,0.95)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(194,132,122,0.15)',
       }}>
         <div style={{ maxWidth: 672, margin: '0 auto', padding: '14px 16px' }}>
 
@@ -67,14 +67,14 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
               onClick={goBack}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 12, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit',
+                fontSize: 13, fontWeight: 700, color: '#6b5040',
+                background: 'rgba(26,15,10,0.05)',
+                border: '1px solid rgba(26,15,10,0.1)',
+                borderRadius: 999, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit',
                 transition: 'background 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(26,15,10,0.09)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(26,15,10,0.05)' }}
             >
               <ArrowRight size={14} />
               {step === 1 ? 'العودة' : 'السابق'}
@@ -82,12 +82,12 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
 
             <div style={{ textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', marginBottom: 2 }}>
-                <Sparkles size={12} style={{ color: a }} />
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500, margin: 0 }}>
+                <Sparkles size={12} style={{ color: p }} />
+                <p style={{ fontSize: 11, color: '#a89080', fontWeight: 600, margin: 0 }}>
                   {tenant.name_ar}
                 </p>
               </div>
-              <p style={{ fontSize: 15, fontWeight: 800, color: '#fff', margin: 0 }}>
+              <p style={{ fontSize: 15, fontWeight: 800, color: '#1a0f0a', margin: 0 }}>
                 {STEPS[step - 1].emoji} {STEPS[step - 1].label}
               </p>
             </div>
@@ -95,15 +95,15 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
             <button
               onClick={onClose}
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 12, padding: '7px', cursor: 'pointer',
-                color: 'rgba(255,255,255,0.5)',
+                background: 'rgba(26,15,10,0.05)',
+                border: '1px solid rgba(26,15,10,0.1)',
+                borderRadius: 999, padding: '7px', cursor: 'pointer',
+                color: '#8c7060',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'background 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,100,100,0.15)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(26,15,10,0.05)' }}
             >
               <X size={15} />
             </button>
@@ -123,25 +123,24 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
                       fontSize: 12, fontWeight: 800,
                       transition: 'all 0.25s ease',
                       ...(done ? {
-                        background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                        background: '#1a0f0a',
                         border: 'none', color: '#fff',
-                        boxShadow: '0 2px 10px rgba(34,197,94,0.4)',
                       } : active ? {
-                        background: `linear-gradient(135deg, ${p}, ${a})`,
+                        background: p,
                         border: 'none', color: '#fff',
-                        boxShadow: `0 2px 16px ${p}55`,
+                        boxShadow: `0 2px 16px ${p}44`,
                         transform: 'scale(1.1)',
                       } : {
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'rgba(255,255,255,0.3)',
+                        background: 'transparent',
+                        border: '1.5px solid rgba(26,15,10,0.15)',
+                        color: 'rgba(26,15,10,0.3)',
                       }),
                     }}>
                       {done ? <Check size={14} /> : s.id}
                     </div>
                     <span style={{
-                      fontSize: 10, marginTop: 5, fontWeight: 600,
-                      color: active ? '#fff' : 'rgba(255,255,255,0.3)',
+                      fontSize: 10, marginTop: 5, fontWeight: 700,
+                      color: active ? '#1a0f0a' : 'rgba(26,15,10,0.35)',
                     }}>
                       {s.label}
                     </span>
@@ -149,13 +148,13 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
 
                   {i < STEPS.length - 1 && (
                     <div style={{
-                      flex: 1, margin: '0 4px 16px', height: 2,
-                      background: 'rgba(255,255,255,0.08)',
+                      flex: 1, margin: '0 4px 16px', height: 1.5,
+                      background: 'rgba(26,15,10,0.1)',
                       borderRadius: 2, overflow: 'hidden', position: 'relative',
                     }}>
                       <div style={{
                         position: 'absolute', inset: 0,
-                        background: done ? 'linear-gradient(90deg, #22c55e, #16a34a)' : `linear-gradient(90deg, ${p}, ${a})`,
+                        background: done ? '#1a0f0a' : p,
                         width: done ? '100%' : '0%',
                         transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
                         borderRadius: 2,
@@ -174,12 +173,11 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
         flex: 1, maxWidth: 672, margin: '0 auto', width: '100%',
         padding: '28px 16px 40px',
       }}>
-        {/* Glass card wrapper */}
+        {/* White card wrapper */}
         <div style={{
-          background: 'rgba(255,255,255,0.04)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 28, padding: '24px',
+          background: '#ffffff',
+          border: '1px solid rgba(26,15,10,0.08)',
+          borderRadius: 4, padding: '24px',
           minHeight: 300,
         }}>
           {step === 1 && (
