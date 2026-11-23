@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { CreditCard, Banknote, Wallet, AlertCircle, Check } from 'lucide-react'
 import { formatCurrency, calculateVAT } from '@/lib/utils'
 import type { TenantProfile, BookingState, PaymentMethod } from '@/types'
+import { DemoCheckout } from '../DemoCheckout'
 
 interface Props {
   tenant: TenantProfile
@@ -49,6 +50,7 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
   const [phoneError, setPhoneError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showDemo, setShowDemo] = useState(false)
 
   const servicesTotal = state.selectedServices.reduce((sum, s) => sum + s.price, 0)
   const travelFee = state.coverageArea?.travel_fee || 0
@@ -132,6 +134,10 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
     borderRadius: 4,
     border: '1px solid rgba(26,15,10,0.08)',
     padding: 18,
+  }
+
+  if (showDemo) {
+    return <DemoCheckout amount={total} onBack={() => setShowDemo(false)} />
   }
 
   return (
@@ -304,6 +310,15 @@ export function Step4Payment({ tenant, state, updateState, onNext, primaryColor 
         }}
       >
         {loading ? 'جاري الحجز...' : selectedMethod === 'online' ? `ادفعي ${formatCurrency(total)}` : 'تأكيد الحجز'}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setShowDemo(true)}
+        disabled={loading}
+        style={{ alignSelf: 'center', padding: '8px 18px', border: '1px solid #decbc1', borderRadius: 999, fontWeight: 700, color: '#77453e', cursor: 'pointer' }}
+      >
+        تجربة الدفع مجانًا
       </button>
 
       <p style={{ fontSize: 11, textAlign: 'center', color: '#a89080', margin: 0, fontWeight: 600 }}>

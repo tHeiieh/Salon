@@ -1,0 +1,10 @@
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 320px); align-items: start; gap: 16px; }
+.catalog { min-width: 0; }
+.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 145px), 1fr)); gap: 10px; }
+.product { min-height: 105px; }
+.product:hover { box-shadow: 0 0 0 2px #e8c5bd; }
+.cart { position: sticky; top: 0; display: flex; flex-direction: column; min-width: 0; max-height: min(76dvh, 900px); overflow: hidden; background: #fff; border: 1px solid #e9ded6; border-radius: 4px; }
+@media (max-width: 850px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .cart { position: static; max-height: none; }
+}

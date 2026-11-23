@@ -1,13 +1,16 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { ArrowRight, X, Check, Sparkles } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
+import { ArrowRight, Check, X } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils'
 import { Step1Services } from './steps/Step1Services'
 import { Step2Address } from './steps/Step2Address'
 import { Step3DateTime } from './steps/Step3DateTime'
 import { Step4Payment } from './steps/Step4Payment'
 import { Step5Confirmation } from './steps/Step5Confirmation'
-import type { TenantProfile, ServiceCategory, Employee, BookingState } from '@/types'
+import type { BookingState, Employee, ServiceCategory, TenantProfile } from '@/types'
+import styles from './booking.module.css'
 
 interface Props {
   tenant: TenantProfile
@@ -17,13 +20,7 @@ interface Props {
   onClose: () => void
 }
 
-const STEPS = [
-  { id: 1, label: 'الخدمة', emoji: '✨' },
-  { id: 2, label: 'العنوان', emoji: '📍' },
-  { id: 3, label: 'الموعد', emoji: '📅' },
-  { id: 4, label: 'الدفع', emoji: '💳' },
-  { id: 5, label: 'تأكيد', emoji: '✅' },
-]
+const STEPS = ['الخدمات', 'العنوان', 'الموعد', 'الدفع', 'التأكيد']
 
 export function BookingFlow({ tenant, initialServices, allCategories, employees, onClose }: Props) {
   const [step, setStep] = useState(1)
@@ -32,212 +29,30 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
     selectedServices: initialServices,
   })
   const [bookingId, setBookingId] = useState<string | null>(null)
+  const progressRef = useRef<HTMLOListElement>(null)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    progressRef.current?.focus({ preventScroll: true })
+  }, [step])
 
   const updateState = useCallback((updates: Partial<BookingState>) => {
-    setBookingState(prev => ({ ...prev, ...updates }))
+    setBookingState(previous => ({ ...previous, ...updates }))
   }, [])
-
-  const goNext = useCallback(() => setStep(s => Math.min(s + 1, 5)), [])
-  const goBack = useCallback(() => {
-    if (step === 1) onClose()
-    else setStep(s => s - 1)
-  }, [step, onClose])
-
-  const p = tenant.primary_color || '#C2847A'
-  const a = tenant.accent_color || '#D4A96A'
+  const goNext = () => setStep(current => Math.min(current + 1, STEPS.length))
+  const goBack = () => {
+    if (step === 1 || step === STEPS.length) onClose()
+    else setStep(current => current - 1)
+  }
+  const primaryColor = tenant.primary_color || '#C2847A'
+  const servicesTotal = bookingState.selectedServices.reduce((sum, service) => sum + Number(service.price), 0)
+  const stepProps = { state: bookingState, updateState, primaryColor }
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: '#faf8f5',
-    }} dir="rtl">
-
-      {/* ── HEADER ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(250,248,245,0.95)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(194,132,122,0.15)',
-      }}>
-        <div style={{ maxWidth: 672, margin: '0 auto', padding: '14px 16px' }}>
-
-          {/* Top row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <button
-              onClick={goBack}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: 13, fontWeight: 700, color: '#6b5040',
-                background: 'rgba(26,15,10,0.05)',
-                border: '1px solid rgba(26,15,10,0.1)',
-                borderRadius: 999, padding: '7px 14px', cursor: 'pointer', fontFamily: 'inherit',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(26,15,10,0.09)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(26,15,10,0.05)' }}
-            >
-              <ArrowRight size={14} />
-              {step === 1 ? 'العودة' : 'السابق'}
-            </button>
-
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', marginBottom: 2 }}>
-                <Sparkles size={12} style={{ color: p }} />
-                <p style={{ fontSize: 11, color: '#a89080', fontWeight: 600, margin: 0 }}>
-                  {tenant.name_ar}
-                </p>
-              </div>
-              <p style={{ fontSize: 15, fontWeight: 800, color: '#1a0f0a', margin: 0 }}>
-                {STEPS[step - 1].emoji} {STEPS[step - 1].label}
-              </p>
-            </div>
-
-            <button
-              onClick={onClose}
-              style={{
-                background: 'rgba(26,15,10,0.05)',
-                border: '1px solid rgba(26,15,10,0.1)',
-                borderRadius: 999, padding: '7px', cursor: 'pointer',
-                color: '#8c7060',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(26,15,10,0.05)' }}
-            >
-              <X size={15} />
-            </button>
-          </div>
-
-          {/* Step progress */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {STEPS.map((s, i) => {
-              const done = step > s.id
-              const active = step === s.id
-              return (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={{
-                      width: 34, height: 34, borderRadius: '50%',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, fontWeight: 800,
-                      transition: 'all 0.25s ease',
-                      ...(done ? {
-                        background: '#1a0f0a',
-                        border: 'none', color: '#fff',
-                      } : active ? {
-                        background: p,
-                        border: 'none', color: '#fff',
-                        boxShadow: `0 2px 16px ${p}44`,
-                        transform: 'scale(1.1)',
-                      } : {
-                        background: 'transparent',
-                        border: '1.5px solid rgba(26,15,10,0.15)',
-                        color: 'rgba(26,15,10,0.3)',
-                      }),
-                    }}>
-                      {done ? <Check size={14} /> : s.id}
-                    </div>
-                    <span style={{
-                      fontSize: 10, marginTop: 5, fontWeight: 700,
-                      color: active ? '#1a0f0a' : 'rgba(26,15,10,0.35)',
-                    }}>
-                      {s.label}
-                    </span>
-                  </div>
-
-                  {i < STEPS.length - 1 && (
-                    <div style={{
-                      flex: 1, margin: '0 4px 16px', height: 1.5,
-                      background: 'rgba(26,15,10,0.1)',
-                      borderRadius: 2, overflow: 'hidden', position: 'relative',
-                    }}>
-                      <div style={{
-                        position: 'absolute', inset: 0,
-                        background: done ? '#1a0f0a' : p,
-                        width: done ? '100%' : '0%',
-                        transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                        borderRadius: 2,
-                      }} />
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── STEP CONTENT ── */}
-      <div style={{
-        flex: 1, maxWidth: 672, margin: '0 auto', width: '100%',
-        padding: '28px 16px 40px',
-      }}>
-        {/* White card wrapper */}
-        <div style={{
-          background: '#ffffff',
-          border: '1px solid rgba(26,15,10,0.08)',
-          borderRadius: 4, padding: '24px',
-          minHeight: 300,
-        }}>
-          {step === 1 && (
-            <Step1Services
-              categories={allCategories}
-              state={bookingState}
-              updateState={updateState}
-              onNext={goNext}
-              primaryColor={p}
-            />
-          )}
-          {step === 2 && (
-            <Step2Address
-              tenant={tenant}
-              state={bookingState}
-              updateState={updateState}
-              onNext={goNext}
-              primaryColor={p}
-            />
-          )}
-          {step === 3 && (
-            <Step3DateTime
-              tenant={tenant}
-              state={bookingState}
-              updateState={updateState}
-              onNext={goNext}
-              employees={employees}
-              primaryColor={p}
-            />
-          )}
-          {step === 4 && (
-            <Step4Payment
-              tenant={tenant}
-              state={bookingState}
-              updateState={updateState}
-              onNext={(id) => { setBookingId(id); goNext() }}
-              primaryColor={p}
-            />
-          )}
-          {step === 5 && bookingId && (
-            <Step5Confirmation
-              bookingId={bookingId}
-              tenant={tenant}
-              state={bookingState}
-              primaryColor={p}
-              onNewBooking={() => {
-                setStep(1)
-                setBookingState({ tenantId: tenant.tenant_id, selectedServices: [] })
-              }}
-            />
-          )}
-        </div>
-      </div>
-
+    <div className={styles.booking} dir="rtl">
       <style>{`
-        * { box-sizing: border-box; }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        .page-enter { animation: fadeUp 0.25s ease both; }
-        .custom-scrollbar::-webkit-scrollbar { display: none; }
-        input, select, textarea {
+        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&display=swap');
+        .editorial-booking input, .editorial-booking select, .editorial-booking textarea {
           background: #faf8f5 !important;
           border: 1px solid rgba(26,15,10,0.12) !important;
           color: #1a0f0a !important;
@@ -246,14 +61,81 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
           font-family: inherit !important;
           font-size: 14px !important;
         }
-        input::placeholder, textarea::placeholder { color: #a89080 !important; }
-        input:focus, select:focus, textarea:focus {
-          outline: none !important;
-          border-color: rgba(194,132,122,0.5) !important;
-          background: #fff !important;
-        }
-        label { color: #a89080 !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: 0.03em !important; }
+        .editorial-booking input::placeholder, .editorial-booking textarea::placeholder { color: #806657 !important; }
+        .editorial-booking label { color: #806657 !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: 0.03em !important; }
       `}</style>
+      <header className={styles.header}>
+        <button type="button" className={styles.control} onClick={goBack}>
+          <ArrowRight size={16} aria-hidden="true" />
+          {step === 1 || step === STEPS.length ? 'الصالون' : 'رجوع'}
+        </button>
+        <strong>{tenant.name_ar || tenant.name_en}</strong>
+        <button type="button" className={styles.close} onClick={onClose} aria-label="إغلاق الحجز">
+          <X size={19} />
+        </button>
+      </header>
+
+      <div className={styles.layout}>
+        <main className={styles.main}>
+          <ol ref={progressRef} tabIndex={-1} className={styles.progress} aria-label="خطوات الحجز">
+            {STEPS.map((label, index) => (
+              <li key={label} aria-current={step === index + 1 ? 'step' : undefined} data-complete={step > index + 1}>
+                <span className={styles.number}>{step > index + 1 ? <Check size={14} /> : index + 1}</span>
+                {label}
+              </li>
+            ))}
+          </ol>
+
+          <div key={step} className={`${styles.content} editorial-booking`}>
+            {step === 1 && <Step1Services {...stepProps} categories={allCategories} onNext={goNext} />}
+            {step === 2 && <Step2Address {...stepProps} tenant={tenant} onNext={goNext} />}
+            {step === 3 && <Step3DateTime {...stepProps} tenant={tenant} employees={employees} onNext={goNext} />}
+            {step === 4 && (
+              <Step4Payment {...stepProps} tenant={tenant} onNext={id => {
+                setBookingId(id)
+                goNext()
+              }} />
+            )}
+            {step === 5 && bookingId && (
+              <Step5Confirmation
+                bookingId={bookingId}
+                tenant={tenant}
+                state={bookingState}
+                primaryColor={primaryColor}
+                onNewBooking={() => {
+                  setBookingId(null)
+                  setStep(1)
+                  setBookingState({ tenantId: tenant.tenant_id, selectedServices: [] })
+                }}
+              />
+            )}
+          </div>
+        </main>
+
+        <aside className={styles.aside}>
+          <div className={styles.poster}>
+            <Image src="/media/salon-cover.avif" alt="" fill sizes="(min-width: 1280px) 440px, 34vw" priority />
+            <div className={styles.posterText}>
+              <span>خدمات الصالون في منزلك</span>
+              <strong aria-hidden="true">جمال</strong>
+            </div>
+          </div>
+          {bookingState.selectedServices.length > 0 && (
+            <div className={styles.selection}>
+              <h2>الخدمات المختارة</h2>
+              <ul>
+                {bookingState.selectedServices.map(service => (
+                  <li key={service.id}>
+                    <span>{service.name_ar}</span>
+                    <bdi>{formatCurrency(service.price)}</bdi>
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.subtotal}><span>مجموع الخدمات</span><bdi>{formatCurrency(servicesTotal)}</bdi></div>
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Search, X, Plus, Minus, ShoppingCart, CreditCard, Banknote, CheckCircle } from 'lucide-react'
+import styles from './cashier.module.css'
 import { createClient } from '@/lib/supabase/client'
 
 interface Service {
@@ -118,9 +119,9 @@ export function CashierClient({ services, employees, tenantId }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 120px)', gap: 0, overflow: 'hidden' }}>
+    <div className={styles.layout}>
       {/* Left: Services */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingLeft: 16 }}>
+      <div className={styles.catalog}>
         {/* Header */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -134,6 +135,7 @@ export function CashierClient({ services, employees, tenantId }: Props) {
         <div style={{ position: 'relative', marginBottom: 12 }}>
           <Search size={14} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: '#a89080' }} />
           <input
+            aria-label="ابحث عن خدمة"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="ابحث عن خدمة..."
@@ -166,15 +168,13 @@ export function CashierClient({ services, employees, tenantId }: Props) {
         </div>
 
         {/* Service Grid */}
-        <div style={{
-          flex: 1, overflowY: 'auto',
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10, alignContent: 'start',
-        }}>
+        <div className={styles.products}>
           {filtered.map(service => {
             const inCart = cart.find(i => i.service.id === service.id)
             return (
               <button
                 key={service.id}
+                className={styles.product}
                 onClick={() => addToCart(service)}
                 style={{
                   padding: '14px 12px', borderRadius: 8, border: `1.5px solid ${inCart ? p : 'rgba(26,15,10,0.08)'}`,
@@ -198,12 +198,7 @@ export function CashierClient({ services, employees, tenantId }: Props) {
       </div>
 
       {/* Right: Cart */}
-      <div style={{
-        width: 320, flexShrink: 0,
-        backgroundColor: '#fff', borderRight: '1px solid rgba(26,15,10,0.08)',
-        display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        marginRight: 16,
-      }}>
+      <div className={styles.cart}>
         {/* Cart Header */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(26,15,10,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

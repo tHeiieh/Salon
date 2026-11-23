@@ -5,6 +5,7 @@ const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'localhost:3000'
 
 export async function middleware(request: NextRequest) {
   const { pathname, host } = request.nextUrl
+  if (pathname === '/demo-payment') return NextResponse.next()
 
   // Create supabase client for auth
   let supabaseResponse = NextResponse.next({ request })

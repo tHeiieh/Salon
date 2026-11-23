@@ -1,0 +1,14 @@
+.checkout { display: grid; gap: 15px; color: #1a0f0a; }
+.checkout h2 { margin: 0; font-size: clamp(25px, 4vw, 36px); font-weight: 900; line-height: 1.24; }
+.checkout p { margin: 0; color: #6b5040; line-height: 1.7; }
+.label { display: flex; align-items: center; gap: 8px; color: #77453e; font-size: 13px; font-weight: 800; }
+.amount { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px; border: 1px solid #e9ded6; border-radius: 4px; background: #faf8f5; }
+.amount bdi { font-size: 22px; font-weight: 900; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.actions button, .back { min-height: 44px; padding: 9px 17px; border: 1px solid #decbc1; border-radius: 999px; cursor: pointer; font-weight: 700; text-decoration: none; }
+.actions button:first-child { background: #1a0f0a; color: white; border-color: #1a0f0a; }
+.actions button:hover, .back:hover { box-shadow: 0 0 0 2px #e6c5bf; }
+.back { justify-self: start; display: inline-flex; align-items: center; }
+.checkout :is(.approved, .declined) { display: flex; align-items: center; gap: 8px; border-radius: 4px; padding: 12px; }
+.checkout .approved { background: #eaf5ed; color: #205438; }
+.checkout .declined { background: #fae9e7; color: #872f2a; }

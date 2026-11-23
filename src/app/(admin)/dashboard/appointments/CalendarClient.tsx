@@ -100,7 +100,7 @@ export function CalendarClient({ appointments, employees }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <div style={{ width: 20, height: 1, background: p }} />
@@ -111,22 +111,23 @@ export function CalendarClient({ appointments, employees }: Props) {
           </h2>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={prev} style={{ width: 32, height: 32, borderRadius: 999, border: '1px solid rgba(26,15,10,0.1)', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button type="button" aria-label="اليوم السابق" onClick={prev} style={{ width: 36, height: 36, borderRadius: 999, border: '1px solid rgba(26,15,10,0.1)', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ChevronRight size={16} style={{ color: '#6b5040' }} />
           </button>
-          <button onClick={() => setSelectedDate(localDateStr(new Date()))} style={{ padding: '0 14px', height: 32, borderRadius: 999, border: '1px solid rgba(26,15,10,0.1)', backgroundColor: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#6b5040', fontFamily: 'inherit' }}>
+          <button type="button" onClick={() => setSelectedDate(localDateStr(new Date()))} style={{ padding: '0 14px', height: 36, borderRadius: 999, border: '1px solid rgba(26,15,10,0.1)', backgroundColor: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#6b5040', fontFamily: 'inherit' }}>
             اليوم
           </button>
-          <button onClick={next} style={{ width: 32, height: 32, borderRadius: 999, border: '1px solid rgba(26,15,10,0.1)', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button type="button" aria-label="اليوم التالي" onClick={next} style={{ width: 36, height: 36, borderRadius: 999, border: '1px solid rgba(26,15,10,0.1)', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ChevronLeft size={16} style={{ color: '#6b5040' }} />
           </button>
         </div>
       </div>
 
       {/* Calendar grid */}
-      <div style={{ backgroundColor: '#fff', border: '1px solid rgba(26,15,10,0.08)', borderRadius: 4, overflow: 'hidden' }}>
+      <div aria-label="تقويم الأخصائيات" tabIndex={0} role="region" style={{ backgroundColor: '#fff', border: '1px solid rgba(26,15,10,0.08)', borderRadius: 4, overflow: 'auto', maxHeight: 'min(64dvh, 780px)' }}>
+        <div style={{ minWidth: 52 + cols.length * colW }}>
         {/* Column headers */}
-        <div style={{ display: 'flex', borderBottom: '1px solid rgba(26,15,10,0.08)' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid #e9ded6', position: 'sticky', top: 0, zIndex: 2, backgroundColor: '#fffaf7' }}>
           {/* Time gutter */}
           <div style={{ width: 52, flexShrink: 0, borderLeft: '1px solid rgba(26,15,10,0.06)' }} />
           {cols.map(col => (
@@ -143,8 +144,7 @@ export function CalendarClient({ appointments, employees }: Props) {
         </div>
 
         {/* Scrollable body */}
-        <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 300px)' }}>
-          <div style={{ display: 'flex', minWidth: 52 + cols.length * colW }}>
+          <div style={{ display: 'flex' }}>
             {/* Time gutter */}
             <div style={{ width: 52, flexShrink: 0, position: 'relative', height: totalH }}>
               {HOURS.map(h => (
