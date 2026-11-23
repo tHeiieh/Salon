@@ -11,6 +11,7 @@ import type { TenantProfile, ServiceCategory, Employee, Service } from '@/types'
 
 interface Props {
   tenant: TenantProfile
+  displayWord: string
   categories: ServiceCategory[]
   employees: Employee[]
 }
@@ -24,7 +25,7 @@ const COLLECTION_ITEMS = [
   { src: '/media/services/gel-nails.webp', label: 'جل الأظافر' },
 ]
 
-export function SalonLandingPage({ tenant, categories, employees }: Props) {
+export function SalonLandingPage({ tenant, displayWord, categories, employees }: Props) {
   const [bookingOpen, setBookingOpen] = useState(false)
   const [selectedServices, setSelectedServices] = useState<Service[]>([])
   const [activeCategory, setActiveCategory] = useState<string>('all')
@@ -67,6 +68,7 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
     return (
       <BookingFlow
         tenant={tenant}
+        displayWord={displayWord}
         initialServices={selectedServices}
         allCategories={categories}
         employees={employees}
@@ -79,7 +81,7 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
   const a = tenant.accent_color || '#D4A96A'
 
   return (
-    <div style={{ minHeight: '100vh', paddingBottom: 76, backgroundColor: '#faf8f5' }} dir="rtl">
+    <div style={{ minHeight: '100vh', backgroundColor: '#faf8f5' }} dir="rtl">
 
       {/* ── FLOATING NAV ── */}
       <nav style={{
@@ -161,13 +163,13 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
         }} />
 
         {/* LARGE overlay word — Personal style */}
-        <div style={{
+        <div aria-hidden="true" style={{
           position: 'absolute', bottom: 80, left: 0, right: 0,
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
           pointerEvents: 'none',
         }}>
-          <span className="groovy-font hero-word" style={{
-            fontSize: 'clamp(80px, 18vw, 220px)',
+          <span className="groovy-font hero-word" dir="auto" style={{
+            fontSize: 'clamp(68px, 18vw, 220px)',
             fontWeight: 900,
             color: 'transparent',
             WebkitTextStroke: '2px rgba(255,255,255,0.7)',
@@ -175,7 +177,7 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
             letterSpacing: '-0.03em',
             userSelect: 'none',
           }}>
-            جمال
+            {displayWord}
           </span>
         </div>
 
@@ -349,30 +351,6 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
           </div>
         </div>
       )}
-
-      {/* ── STICKY BOTTOM CTA ── */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-        background: 'rgba(250,248,245,0.95)',
-        backdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(194,132,122,0.12)',
-      }}>
-        <div style={{ maxWidth: 672, margin: '0 auto', padding: '12px 16px' }}>
-          <button
-            id="book-sticky"
-            onClick={event => openBooking([], event.currentTarget)}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              padding: '15px 0', borderRadius: 999, border: 'none', cursor: 'pointer',
-              background: '#1a0f0a', color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: 'inherit',
-              letterSpacing: '0.03em',
-            }}
-          >
-            احجزي موعدك الآن
-            <ChevronLeft size={15} style={{ opacity: 0.6 }} />
-          </button>
-        </div>
-      </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&display=swap');

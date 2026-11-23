@@ -14,6 +14,7 @@ import styles from './booking.module.css'
 
 interface Props {
   tenant: TenantProfile
+  displayWord: string
   initialServices: BookingState['selectedServices']
   allCategories: ServiceCategory[]
   employees: Employee[]
@@ -22,7 +23,7 @@ interface Props {
 
 const STEPS = ['الخدمات', 'العنوان', 'الموعد', 'الدفع', 'التأكيد']
 
-export function BookingFlow({ tenant, initialServices, allCategories, employees, onClose }: Props) {
+export function BookingFlow({ tenant, displayWord, initialServices, allCategories, employees, onClose }: Props) {
   const [step, setStep] = useState(1)
   const [bookingState, setBookingState] = useState<BookingState>({
     tenantId: tenant.tenant_id,
@@ -117,7 +118,7 @@ export function BookingFlow({ tenant, initialServices, allCategories, employees,
             <Image src="/media/salon-cover.avif" alt="" fill sizes="(min-width: 1280px) 440px, 34vw" priority />
             <div className={styles.posterText}>
               <span>خدمات الصالون في منزلك</span>
-              <strong aria-hidden="true">جمال</strong>
+              <strong aria-hidden="true" dir="auto">{displayWord}</strong>
             </div>
           </div>
           {bookingState.selectedServices.length > 0 && (

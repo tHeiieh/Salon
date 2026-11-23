@@ -37,6 +37,7 @@ export default async function BookPage({ params }: Props) {
   return (
     <SalonLandingPage
       tenant={tenant}
+      displayWord={slug === 'luxe' ? 'LUXE' : 'جمال'}
       categories={(categories as ServiceCategory[]) || []}
       employees={(employees as unknown as Employee[]) || []}
     />

@@ -101,6 +101,7 @@
 .aside { position: sticky; top: 22px; }
 .poster {
   position: relative;
+  container-type: inline-size;
   overflow: hidden;
   isolation: isolate;
   border-radius: 4px;
@@ -125,7 +126,7 @@
   color: white;
 }
 .posterText span { font-weight: 800; font-size: 14px; }
-.posterText strong { font-size: clamp(86px, 12vw, 170px); line-height: 1.12; color: transparent; -webkit-text-stroke: 1.3px white; text-align: center; }
+.posterText strong { font: 900 clamp(58px, 24cqi, 112px)/1.12 Unbounded, Cairo, sans-serif; color: transparent; -webkit-text-stroke: 1.3px white; text-align: center; }
 
 .selection {
   margin-top: 12px;
