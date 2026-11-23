@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { Phone, Sparkles, ChevronLeft, Clock } from 'lucide-react'
+import { ServicePhoto } from './ServicePhoto'
+import styles from './service-gallery.module.css'
 import { BookingFlow } from '@/components/booking/BookingFlow'
 import { formatCurrency } from '@/lib/utils'
 import type { TenantProfile, ServiceCategory, Employee, Service } from '@/types'
@@ -14,21 +16,29 @@ interface Props {
 }
 
 const COLLECTION_ITEMS = [
-  { src: '/media/salon-1.jpg', label: 'العناية بالشعر', year: '٢٠٢٤', tall: true },
-  { src: '/media/salon-2.jpg', label: 'مكياج احترافي', year: '٢٠٢٤', tall: false },
-  { src: '/media/salon-3.jpg', label: 'تجفيف الشعر', year: '٢٠٢٥', tall: false },
-  { src: '/media/salon-4.jpg', label: 'العناية بالبشرة', year: '٢٠٢٥', tall: true },
-  { src: '/media/salon-5.jpg', label: 'تمليس الشعر', year: '٢٠٢٤', tall: false },
+  { src: '/media/salon-1.jpg', label: 'مكياج العيون', tall: true },
+  { src: '/media/salon-2.jpg', label: 'تمليس الشعر' },
+  { src: '/media/salon-4.jpg', label: 'غسل الشعر والعناية به', tall: true },
+  { src: '/media/salon-5.jpg', label: 'داخل الصالون' },
+  { src: '/media/salon-3.jpg', label: 'تجفيف الشعر' },
+  { src: '/media/services/gel-nails.webp', label: 'جل الأظافر' },
 ]
-
-const SCROLL_SERVICES_CATEGORIES = ['الكل', 'شعر', 'مكياج', 'مانيكير', 'بشرة']
 
 export function SalonLandingPage({ tenant, categories, employees }: Props) {
   const [bookingOpen, setBookingOpen] = useState(false)
   const [selectedServices, setSelectedServices] = useState<Service[]>([])
   const [activeCategory, setActiveCategory] = useState<string>('all')
   const [scrolled, setScrolled] = useState(false)
-  const servicesRef = useRef<HTMLDivElement>(null)
+  const servicesRef = useRef<HTMLElement>(null)
+  const restoreBookingTrigger = useRef<{ triggerId: string | undefined; scroll: number } | null>(null)
+
+  useEffect(() => {
+    if (bookingOpen || !restoreBookingTrigger.current) return
+    const { triggerId, scroll } = restoreBookingTrigger.current
+    restoreBookingTrigger.current = null
+    window.scrollTo(0, scroll)
+    if (triggerId) document.getElementById(triggerId)?.focus({ preventScroll: true })
+  }, [bookingOpen])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -36,13 +46,16 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const allServices = categories.flatMap(c => (c.services || []).filter(s => s.is_active))
-  const displayedServices = activeCategory === 'all'
-    ? allServices
-    : (categories.find(c => c.id === activeCategory)?.services || []).filter(s => s.is_active)
+  const availableCategories = categories.filter(category => category.services?.some(service => service.is_active))
+  const displayedServices = availableCategories
+    .filter(category => activeCategory === 'all' || activeCategory === category.id)
+    .flatMap(category => (category.services ?? [])
+      .filter(service => service.is_active)
+      .map(service => ({ service, category })))
 
-  function handleBookService(service: Service) {
-    setSelectedServices([service])
+  function openBooking(services: Service[], trigger: HTMLButtonElement) {
+    restoreBookingTrigger.current = { triggerId: trigger.id, scroll: window.scrollY }
+    setSelectedServices(services)
     setBookingOpen(true)
   }
 
@@ -66,7 +79,7 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
   const a = tenant.accent_color || '#D4A96A'
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#faf8f5' }} dir="rtl">
+    <div style={{ minHeight: '100vh', paddingBottom: 76, backgroundColor: '#faf8f5' }} dir="rtl">
 
       {/* ── FLOATING NAV ── */}
       <nav style={{
@@ -192,7 +205,8 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
             )}
             <div style={{ display: 'flex', gap: 12 }}>
               <button
-                onClick={() => setBookingOpen(true)}
+                id="book-hero"
+                onClick={event => openBooking([], event.currentTarget)}
                 className="btn-primary"
                 style={{ background: p, border: 'none', borderRadius: 999, padding: '14px 36px', cursor: 'pointer', fontFamily: 'inherit', color: '#fff', fontWeight: 800, fontSize: 14, letterSpacing: '0.03em' }}
               >
@@ -217,197 +231,73 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
       </div>
 
       {/* ── EDITORIAL TEXT BLOCK ── */}
-      <div style={{ background: '#fff', padding: '72px 32px' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'flex-start', gap: 60, flexWrap: 'wrap' }}>
-          <div style={{ flex: '0 0 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 180, marginBottom: 20 }}>
-              <div style={{ width: 60, height: 1, background: 'rgba(26,15,10,0.15)' }} />
-              <span style={{ fontSize: 10, color: '#a89080', fontWeight: 700, letterSpacing: '0.12em' }}>It's never too late to look good</span>
-            </div>
-            <h2 className="groovy-font" style={{
-              fontSize: 'clamp(48px, 8vw, 100px)',
-              fontWeight: 900, lineHeight: 0.85,
-              color: p, margin: '0 0 -12px',
-              letterSpacing: '-0.03em',
-            }}>
-              BE
-            </h2>
-          </div>
-          <div style={{ flex: 1, minWidth: 260, paddingTop: 32 }}>
-            <h2 style={{
-              fontSize: 'clamp(20px, 3vw, 32px)', fontWeight: 900,
-              color: '#1a0f0a', lineHeight: 1.2, margin: 0,
-              letterSpacing: '-0.02em',
-            }}>
-              كوني جزءاً من ثورة الجمال واحصلي على تجربة مميزة{' '}
-              <span style={{ color: p }}>بأسلوبك الخاص</span>{' '}
-              <span style={{ color: p }}>بشكل لا مثيل له</span>
-            </h2>
-          </div>
+      <div style={{ background: '#fff' }}>
+        <div className={styles.galleryIntro}>
+          <span aria-hidden="true" className="groovy-font" style={{ color: p }}>BE</span>
+          <h2>جمالك <span style={{ color: p }}>بأسلوبك الخاص</span></h2>
         </div>
       </div>
 
-      {/* ── COLLECTION GRID (Personal style masonry) ── */}
-      <div style={{ background: '#fff', padding: '0 0 80px' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
-
-          {/* Row 1: alternating height mosaic */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, alignItems: 'end' }}>
-            {/* Col 1: tall */}
-            <div style={{ position: 'relative', height: 420, borderRadius: 4, overflow: 'hidden' }}>
-              <Image src="/media/salon-1.jpg" alt="خدمات الصالون" fill style={{ objectFit: 'cover' }} sizes="25vw" />
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)', padding: 20 }}>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>٢٠٢٤</span>
-                <p style={{ color: '#fff', fontWeight: 800, fontSize: 14, margin: '4px 0 0' }}>العناية بالشعر</p>
-              </div>
-            </div>
-
-            {/* Col 2: two stacked short */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ position: 'relative', height: 200, borderRadius: 4, overflow: 'hidden' }}>
-                <Image src="/media/salon-2.jpg" alt="مكياج" fill style={{ objectFit: 'cover' }} sizes="25vw" />
-                <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, background: 'rgba(0,0,0,0.3)', borderRadius: 20, padding: '3px 10px' }}>مكياج</span>
-                </div>
-              </div>
-              <div style={{ position: 'relative', height: 210, borderRadius: 4, overflow: 'hidden' }}>
-                <Image src="/media/salon-3.jpg" alt="شعر" fill style={{ objectFit: 'cover' }} sizes="25vw" />
-                <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, background: 'rgba(0,0,0,0.3)', borderRadius: 20, padding: '3px 10px' }}>شعر</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Col 3: tall, shifted up */}
-            <div style={{ position: 'relative', height: 380, borderRadius: 4, overflow: 'hidden', marginBottom: 40 }}>
-              <Image src="/media/salon-4.jpg" alt="العناية بالبشرة" fill style={{ objectFit: 'cover' }} sizes="25vw" />
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)', padding: 20 }}>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>٢٠٢٥</span>
-                <p style={{ color: '#fff', fontWeight: 800, fontSize: 14, margin: '4px 0 0' }}>العناية بالبشرة</p>
-              </div>
-            </div>
-
-            {/* Col 4: two stacked */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ position: 'relative', height: 220, borderRadius: 4, overflow: 'hidden' }}>
-                <Image src="/media/salon-5.jpg" alt="سبا" fill style={{ objectFit: 'cover' }} sizes="25vw" />
-                <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, background: 'rgba(0,0,0,0.3)', borderRadius: 20, padding: '3px 10px' }}>سبا</span>
-                </div>
-              </div>
-              <div style={{ position: 'relative', height: 190, borderRadius: 4, overflow: 'hidden' }}>
-                <Image src="/media/salon-6.jpg" alt="أظافر" fill style={{ objectFit: 'cover' }} sizes="25vw" />
-                <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, background: 'rgba(0,0,0,0.3)', borderRadius: 20, padding: '3px 10px' }}>أظافر</span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div style={{ background: '#fff' }}>
+        <div className={styles.gallery}>
+          {COLLECTION_ITEMS.map(({ src, label, tall }) => (
+            <figure key={src} className={tall ? styles.tall : undefined}>
+              <Image src={src} alt="" fill className={styles.photo} sizes="(max-width: 680px) 50vw, (max-width: 1280px) 25vw, 305px" />
+              <figcaption>{label}</figcaption>
+            </figure>
+          ))}
         </div>
       </div>
 
-      {/* ── BEST SERVICES (dark horizontal scroll — Personal "Best Sellers" style) ── */}
-      <div ref={servicesRef} style={{ background: '#1a0f0a', padding: '0 0 60px' }}>
-
-        {/* Header strip */}
-        <div style={{
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          padding: '20px 32px',
-          display: 'flex', alignItems: 'center', gap: 0, overflowX: 'auto',
-        }} className="no-scrollbar">
-          <span className="groovy-font" style={{
-            fontSize: 'clamp(18px, 3vw, 28px)', fontWeight: 900, color: '#fff',
-            letterSpacing: '-0.01em', flexShrink: 0, marginLeft: 32,
-          }}>
-            أفضل خدماتنا
-          </span>
-          <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.15)', margin: '0 20px', flexShrink: 0 }} />
-          {[{ id: 'all', name_ar: 'الكل' }, ...categories.filter(c => (c.services || []).filter(s => s.is_active).length > 0)].map(cat => {
-            const isActive = activeCategory === cat.id
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                style={{
-                  flexShrink: 0, padding: '6px 20px', borderRadius: 999,
-                  border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                  fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', marginLeft: 8,
-                  background: isActive ? p : 'transparent',
-                  color: isActive ? '#fff' : 'rgba(255,255,255,0.4)',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {'name_ar' in cat ? cat.name_ar : ''}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Service cards — 2-row grid scroll */}
-        <div style={{ overflowX: 'auto', padding: '24px 32px 0' }} className="no-scrollbar">
-          <div style={{
-            display: 'grid',
-            gridTemplateRows: 'repeat(2, auto)',
-            gridAutoFlow: 'column',
-            gridAutoColumns: '240px',
-            gap: '10px 10px',
-            width: 'max-content',
-          }}>
-            {(displayedServices.length > 0 ? displayedServices : allServices).map(service => (
-              <div
-                key={service.id}
-                onClick={() => handleBookService(service)}
-                style={{
-                  width: 240, background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 4, overflow: 'hidden', cursor: 'pointer',
-                  transition: 'background 0.2s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.09)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-              >
-                {/* Image */}
-                <div style={{ position: 'relative', height: 140, overflow: 'hidden' }}>
-                  {service.image_url ? (
-                    <Image src={service.image_url} alt={service.name_ar} fill style={{ objectFit: 'cover' }} sizes="240px" />
-                  ) : (
-                    <div style={{
-                      width: '100%', height: '100%',
-                      background: `linear-gradient(145deg, ${p}25, ${a}22)`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 36,
-                    }}>✨</div>
-                  )}
-                </div>
-                {/* Content */}
-                <div style={{ padding: '12px 14px' }}>
-                  <p style={{ color: '#fff', fontWeight: 800, fontSize: 13, margin: '0 0 4px', lineHeight: 1.3 }}>{service.name_ar}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: p }}>{formatCurrency(service.price)}</span>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>
-                      <Clock size={9} style={{ display: 'inline', verticalAlign: 'middle' }} /> {service.duration_minutes}د
+      <section ref={servicesRef} className={styles.catalog} aria-labelledby="salon-services-heading">
+        <div className={styles.catalogInner}>
+          <div className={styles.catalogHeader}>
+            <h2 id="salon-services-heading">أفضل خدماتنا</h2>
+            <div className={styles.filters} role="group" aria-label="فئات الخدمات">
+              {[{ id: 'all', name_ar: 'الكل' }, ...availableCategories].map(category => (
+                <button
+                  key={category.id}
+                  type="button"
+                  aria-pressed={activeCategory === category.id}
+                  onClick={() => setActiveCategory(category.id)}
+                >
+                  {category.name_ar}
+                </button>
+              ))}
+            </div>
+          </div>
+          {displayedServices.length > 0 ? (
+            <>
+              <div className={styles.cards}>
+                {displayedServices.map(({ service, category }) => (
+                  <button
+                    key={service.id}
+                    id={`book-service-${service.id}`}
+                    type="button"
+                    className={styles.card}
+                    onClick={event => openBooking([service], event.currentTarget)}
+                  >
+                    <span className={styles.cardImage}>
+                      <ServicePhoto service={service} category={category} sizes="(max-width: 680px) 50vw, (max-width: 1280px) 33vw, 400px" />
+                      <span className={styles.cardName}>{service.name_ar || service.name_en}</span>
                     </span>
-                  </div>
-                </div>
+                    <span className={styles.cardDetails}>
+                      <span className={styles.cardMeta}>
+                        <bdi className={styles.price}>{formatCurrency(service.price)}</bdi>
+                        <span className={styles.duration}><Clock size={13} aria-hidden="true" /> {service.duration_minutes} دقيقة</span>
+                      </span>
+                      <span className={styles.cardArrow}><ChevronLeft size={17} aria-hidden="true" /></span>
+                    </span>
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+              <button id="book-catalog" type="button" className={styles.book} onClick={event => openBooking([], event.currentTarget)}>احجزي موعدك الآن</button>
+            </>
+          ) : (
+            <p className={styles.empty}>لا توجد خدمات متاحة للحجز حاليًا.</p>
+          )}
         </div>
-
-        {/* Book CTA inside dark section */}
-        <div style={{ padding: '32px 32px 0', display: 'flex', justifyContent: 'center' }}>
-          <button
-            onClick={() => setBookingOpen(true)}
-            style={{
-              background: p, border: 'none', borderRadius: 999,
-              padding: '14px 48px', cursor: 'pointer', fontFamily: 'inherit',
-              color: '#fff', fontWeight: 800, fontSize: 14, letterSpacing: '0.05em',
-            }}
-          >
-            احجزي موعدك الآن
-          </button>
-        </div>
-      </div>
+      </section>
 
       {/* ── TEAM (light section) ── */}
       {employees.length > 0 && (
@@ -469,7 +359,8 @@ export function SalonLandingPage({ tenant, categories, employees }: Props) {
       }}>
         <div style={{ maxWidth: 672, margin: '0 auto', padding: '12px 16px' }}>
           <button
-            onClick={() => setBookingOpen(true)}
+            id="book-sticky"
+            onClick={event => openBooking([], event.currentTarget)}
             style={{
               width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
               padding: '15px 0', borderRadius: 999, border: 'none', cursor: 'pointer',
